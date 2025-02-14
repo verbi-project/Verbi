@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="https://cdn.glitch.global/bb402df2-6eaa-4649-b31b-53b20b54a203/output-onlinepngtools%20(1).png?v=1739509680091" />
+
+    <title>Verbi - Home</title>
+
+    <!-- import the webpage's stylesheet -->
+        <link rel="stylesheet" href="/Global/style.css" />
+
+    <link rel="stylesheet" href="/home/style.css" />
+    
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+ <script
+      src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"
+      defer
+    ></script>
+    <!-- import the webpage's javascript file -->
+    <script src="/home/script.js" defer type="module"></script>
+  </head>
+  <body id="body">
+    <img
+      id="backgroundImage"
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi3JG2xEF441VcqRmZo_NKn9Ip-MHvi5TFZQ:https://upload.wikimedia.org/wikipedia/commons/b/bd/Christ_Church_Library%252C_Oxford-17003872248.jpg&usqp=CAU"
+    />
+    <div id="content">
+      <div id="word">Loading</div>
+      <div id="wordInfo">
+        <div id="partOfSpeech"></div>
+        <div id="syllables"></div>
+      </div>
+
+      <div id="def">Loading</div>
+    </div>
+    <div id="wordButtons">
+      <span class="material-symbols-rounded" id="shareWordButton"> ios_share </span>
+      <span class="material-symbols-rounded" id="speakerButton"onclick="speakWord"> volume_up </span>
+      <span class="material-symbols-rounded" id="favorateWordButton" > favorite </span>
+      
+      <!-- collection's feature -->
+      <span class="material-symbols-rounded"> collections_bookmark </span>
+    </div>
+    <div id="ApplicationButtons">
+     <div id="rightIcons">
+       <span class="double-width-icon">verbi</span>
+      </div>
+     <div id="leftIcons">
+        <span class="material-symbols-rounded"> brush </span>
+        <span class="material-symbols-rounded"> person </span>
+      </div>
+          </div>
+
+  </body>
+</html>

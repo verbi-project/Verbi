@@ -1,0 +1,23 @@
+.content {
+  z-index: 1;
+  top: 50% !important;
+}
+.account-bubble {
+  display: flex;
+  align-items: center;
+  font-size: 26px;
+}
+.account-image {
+  width: 64px;
+  height: 64px;
+  border-radius: 64px;
+  display: block;
+}
+.setting {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  justify-content: space-between;
+margin-left: 20px;
+
+}
