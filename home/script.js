@@ -8,13 +8,69 @@ import {
 } from "/Global/firebase.js";
 
 // Initialize variables
-var dictionary = []; // Array to store dictionary data (not used extensively in this code)
-var wordList = [];     // Array to store the current word list
-var place = 0;        // Index of the current word being displayed
-var favoriteWords = [null]; // Array to store user's favorite words
+let dictionary = []; // Array to store dictionary data
+let wordList = [];   // Array to store the current word list
+let place = 0;       // Index of the current word being displayed
+let favoriteWords = JSON.parse(localStorage.getItem('favoriteWords') || '[]');
+let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+
+// Sound effects
+const sounds = {
+  pop: new Audio('/sounds/pop.mp3'),
+  click: new Audio('/sounds/click.mp3'),
+  success: new Audio('/sounds/success.mp3')
+};
+
+function playSound(soundName) {
+  if (soundEnabled && sounds[soundName]) {
+    sounds[soundName].currentTime = 0;
+    sounds[soundName].play();
+  }
+}
 
 // Start the application
-start();
+initializeApp();
+
+async function initializeApp() {
+  // Load user preferences
+  loadUserPreferences();
+  
+  // Initialize the word list
+  await start();
+  
+  // Setup event listeners
+  setupEventListeners();
+}
+
+function loadUserPreferences() {
+  // Load dark/light mode preference
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  document.documentElement.classList.toggle('dark-mode', darkMode);
+  
+  // Load custom background if set
+  const customBackground = localStorage.getItem('customBackground');
+  if (customBackground) {
+    document.getElementById('backgroundImage').src = customBackground;
+  }
+}
+
+function setupEventListeners() {
+  // Word interaction buttons
+  document.getElementById('shareWordButton').addEventListener('click', () => {
+    shareWord();
+    playSound('click');
+  });
+  
+  document.getElementById('speakerButton').addEventListener('click', () => {
+    speakWord();
+    playSound('click');
+  });
+  
+  document.getElementById('favorateWordButton').addEventListener('click', () => {
+    toggleFavorite();
+    playSound('pop');
+  });
+}
 
 // Function to check if the URL has an "index" parameter
 function hasIndexParameter() {
@@ -55,13 +111,31 @@ console.log(getRandomWord());
 async function start(dict) {
   dictionary = dict; // Assign the dictionary data (if any)
 
-  // Get user's favorite word list from Firebase
-  await getUserWordList(
-    JSON.parse(localStorage.getItem("USER_PROFILE")).id,
-    (data) => {
-      favoriteWords = data;
-    }
-  );
+  // Sync favorite words between Firebase and local storage
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+  if (userId) {
+    await getUserWordList(userId, (data) => {
+      if (data) {
+        // Merge Firebase data with local storage
+        const firebaseWords = JSON.parse(data);
+        const localWords = JSON.parse(localStorage.getItem('favoriteWords') || '[]');
+        
+        // Combine and deduplicate words based on text property
+        const mergedWords = [...firebaseWords, ...localWords]
+          .reduce((acc, word) => {
+            if (!acc.some(w => w.text === word.text)) {
+              acc.push(word);
+            }
+            return acc;
+          }, []);
+        
+        // Update both storages
+        favoriteWords = mergedWords;
+        localStorage.setItem('favoriteWords', JSON.stringify(mergedWords));
+        setUserWordList(userId, JSON.stringify(mergedWords));
+      }
+    });
+  }
 
   // Check if the URL has an "index" parameter
   if (hasIndexParameter()) {
@@ -94,46 +168,54 @@ async function start(dict) {
 
 // Function to check if a word is in the user's favorite word list
 function containsWord(wordToCheck) {
-  favoriteWords = JSON.parse(favoriteWords); // Parse the favoriteWords data (assuming it's stored as JSON)
-  for (let i = 0; i < favoriteWords.length; i++) {
-    if (favoriteWords[i].word == wordToCheck) {
-      return true;
-    }
-  }
-  return false;
+  return favoriteWords.some(word => word.text === wordToCheck);
 }
 
 // Function to populate the UI with word information
 function populateUI(wordObject) {
+  // Reset speaker state
   endSpeaker();
-  var element = document.getElementById("speakerButton");
-  element.classList.add("material-symbols-rounded");
-  element.classList.remove("selected-material-symbol");
-  document.getElementById(
-    "word"
-  ).textContent = `${wordObject.word[0].toUpperCase()}${wordObject.word
-    .slice(1)
-    .toLowerCase()}`;
-  document.getElementById(
-    "def"
-  ).textContent = `${wordObject.def[0].toUpperCase()}${wordObject.def
-    .slice(1)
-    .toLowerCase()}`;
-  document.getElementById("partOfSpeech").textContent = ``;
-  document.getElementById("syllables").textContent = splitIntoSyllables(
-    wordObject.word
-  )
+  const speakerBtn = document.getElementById("speakerButton");
+  speakerBtn.classList.add("material-symbols-rounded");
+  speakerBtn.classList.remove("selected-material-symbol");
 
-  // Update the favorite button based on whether the word is in the favorite list
-  var element = document.getElementById("favorateWordButton");
+  // Prepare new content
+  const newWord = `${wordObject.word[0].toUpperCase()}${wordObject.word.slice(1).toLowerCase()}`;
+  const newDef = `${wordObject.def[0].toUpperCase()}${wordObject.def.slice(1).toLowerCase()}`;
+  const newSyllables = splitIntoSyllables(wordObject.word);
+
+  // Animate out current content
+  ['word', 'def', 'partOfSpeech', 'syllables'].forEach(id => {
+    const element = document.getElementById(id);
+    element.style.opacity = '0';
+    element.style.transform = 'translateY(-10px)';
+    element.style.transition = 'all 0.2s ease-out';
+  });
+
+  // Update and animate in new content
+  setTimeout(() => {
+    document.getElementById("word").textContent = newWord;
+    document.getElementById("def").textContent = newDef;
+    document.getElementById("partOfSpeech").textContent = '';
+    document.getElementById("syllables").textContent = newSyllables;
+
+    ['word', 'def', 'partOfSpeech', 'syllables'].forEach(id => {
+      const element = document.getElementById(id);
+      element.style.opacity = '1';
+      element.style.transform = 'translateY(0)';
+    });
+
+    playSound('click');
+  }, 200);
+
+  // Update favorite button state
+  const favoriteBtn = document.getElementById("favorateWordButton");
   if (containsWord(wordObject.word)) {
-    console.log("44r");
-    element.classList.remove("material-symbols-rounded");
-    element.classList.add("selected-material-symbol");
+    favoriteBtn.classList.remove("material-symbols-rounded");
+    favoriteBtn.classList.add("selected-material-symbol");
   } else {
-    console.log("r");
-    element.classList.add("material-symbols-rounded");
-    element.classList.remove("selected-material-symbol");
+    favoriteBtn.classList.add("material-symbols-rounded");
+    favoriteBtn.classList.remove("selected-material-symbol");
   }
 }
 
@@ -310,46 +392,40 @@ document.addEventListener("keyup", (event) => {
 
 // Function to update the user's favorite word list
 export function updateFavorateWordList() {
-  var element = document.getElementById("favorateWordButton");
-  if (
-    document.getElementById("favorateWordButton").classList[0] ==
-    "material-symbols-rounded"
-  ) {
-    // Add the word to favorites
-    getUserWordList(
-      JSON.parse(localStorage.getItem("USER_PROFILE")).id,
-      (data) => {
-        data = JSON.parse(data);
-        console.log(data);
-        data.push(wordList[place]);
-        console.log(data);
-        setUserWordList(
-          JSON.parse(localStorage.getItem("USER_PROFILE")).id,
-          data
-        );
-      }
-    );
+  const currentWord = wordList[place];
+  const element = document.getElementById("favorateWordButton");
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+
+  const wordData = {
+    text: currentWord.word,
+    definition: currentWord.definition,
+    partOfSpeech: currentWord.partOfSpeech,
+    timestamp: Date.now()
+  };
+
+  if (element.classList.contains("material-symbols-rounded")) {
+    // Add to favorites
+    favoriteWords.push(wordData);
     element.classList.remove("material-symbols-rounded");
     element.classList.add("selected-material-symbol");
+    playSound('success');
   } else {
-    // Remove the word from favorites
-    var element = document.getElementById("favorateWordButton");
-    getUserWordList(
-      JSON.parse(localStorage.getItem("USER_PROFILE")).id,
-      (data) => {
-        var wordToRemove = wordList[place].word;
-        const newWordArray = JSON.parse(data).filter(
-          (wordObj) => wordObj.word !== wordToRemove
-        );
-        console.log(newWordArray);
-        setUserWordList(
-          JSON.parse(localStorage.getItem("USER_PROFILE")).id,
-          newWordArray
-        );
-      }
-    );
-    element.classList.add("material-symbols-rounded");
+    // Remove from favorites
+    favoriteWords = favoriteWords.filter(word => word.text !== currentWord.word);
     element.classList.remove("selected-material-symbol");
+    element.classList.add("material-symbols-rounded");
+    playSound('pop');
+  }
+
+  // Update local storage
+  localStorage.setItem('favoriteWords', JSON.stringify(favoriteWords));
+
+  // Update Firebase if user is logged in
+  if (userId) {
+    getUserWordList(userId, (data) => {
+      const updatedData = JSON.stringify(favoriteWords);
+      setUserWordList(userId, updatedData);
+    });
   }
 }
 
@@ -408,55 +484,165 @@ function endSpeaker() {
 
 // Function to copy the share URL and show an alert
 function copyAndShowAlert() {
-  var element = document.getElementById("shareWordButton");
-  element.classList.toggle("material-symbols-rounded");
-  element.classList.toggle("selected-material-symbol");
-  console.log(wordList[place]);
-  navigator.clipboard.writeText("https://verbi.glitch.me/home/?index=" + wordList[place].index.toString())
+  const currentWord = wordList[place];
+  const shareText = `${currentWord.word} - ${currentWord.partOfSpeech}\n${currentWord.definition}\n\nShared from Verbi`;
+  
+  const alert = document.createElement('div');
+  alert.className = 'alert glass-morphism';
+  
+  navigator.clipboard.writeText(shareText)
     .then(() => {
-      // Create and show the alert with animation
-      const alertContainer = document.createElement('div');
-      alertContainer.classList.add('copy-alert-container');
-      alertContainer.style.cssText = ` /* ... (styles remain the same) ... */ `;
-
-      const icon = document.createElement('span');
-      icon.classList.add('material-symbols-rounded');
-      icon.textContent = 'content_copy';
-      icon.style.cssText = ` /* ... (styles remain the same) ... */ `;
-
-      const message = document.createElement('span');
-      message.textContent = 'Copied!';
-      message.style.cssText = ` /* ... (styles remain the same) ... */ `;
-
-      alertContainer.appendChild(icon);
-      alertContainer.appendChild(message);
-      document.body.appendChild(alertContainer);
-
-      // Fade in
+      alert.innerHTML = '<span class="material-symbols-rounded">check_circle</span> Word copied!';
+      playSound('success');
+      
+      const shareBtn = document.getElementById("shareWordButton");
+      shareBtn.classList.add("selected-material-symbol");
+      
       setTimeout(() => {
-        alertContainer.style.opacity = 1;
-      }, 10);
-
-      // Fade out and remove
-      setTimeout(() => {
-        alertContainer.style.opacity = 0;
-        setTimeout(() => {
-          alertContainer.remove();
-          var element = document.getElementById("shareWordButton");
-          element.classList.toggle("material-symbols-rounded");
-          element.classList.toggle("selected-material-symbol");
-        }, 500); // Match the transition duration
-      }, 1000); // Show for 2 seconds (including fade time)
-
+        shareBtn.classList.remove("selected-material-symbol");
+      }, 1000);
     })
-    .catch(err => {
-      console.error('Failed to copy: ', err);
-      // Handle error
-      const errorAlert = document.createElement('div');
-      errorAlert.textContent = "Copy failed. Please try again.";
-      document.body.appendChild(errorAlert);
-      setTimeout(() => errorAlert.remove(), 3000);
+    .catch(() => {
+      alert.innerHTML = '<span class="material-symbols-rounded">error</span> Failed to copy';
+      playSound('pop');
     });
+
+  document.body.appendChild(alert);
+  setTimeout(() => {
+    alert.classList.add('fade-out');
+    setTimeout(() => alert.remove(), 300);
+  }, 2000);
 }
 
 
+// Collections Management
+let collections = JSON.parse(localStorage.getItem('collections') || '[]');
+
+function addToCollection(collectionId) {
+  const currentWord = wordList[place];
+  const wordData = {
+    text: currentWord.word,
+    definition: currentWord.definition,
+    partOfSpeech: currentWord.partOfSpeech,
+    timestamp: Date.now()
+  };
+
+  // Find the collection and add the word
+  const collection = collections.find(c => c.id === collectionId);
+  if (collection) {
+    if (!collection.words.some(w => w.text === wordData.text)) {
+      collection.words.push(wordData);
+      localStorage.setItem('collections', JSON.stringify(collections));
+      playSound('success');
+      showAlert('Word added to collection');
+    }
+  }
+}
+
+function showCollectionModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content glass-morphism">
+      <h3>Add to Collection</h3>
+      <div class="collections-list">
+        ${collections.map(collection => `
+          <button class="collection-item" data-id="${collection.id}">
+            <span class="material-symbols-rounded">collections_bookmark</span>
+            <span>${collection.name}</span>
+          </button>
+        `).join('')}
+      </div>
+      <button class="btn" id="createNewCollection">
+        <span class="material-symbols-rounded">add</span>
+        Create New Collection
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Add event listeners
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  modal.querySelectorAll('.collection-item').forEach(button => {
+    button.addEventListener('click', () => {
+      addToCollection(button.dataset.id);
+      modal.remove();
+    });
+  });
+
+  modal.querySelector('#createNewCollection').addEventListener('click', () => {
+    showCreateCollectionModal();
+    modal.remove();
+  });
+}
+
+function showCreateCollectionModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal active';
+  modal.innerHTML = `
+    <div class="modal-content glass-morphism">
+      <h3>Create New Collection</h3>
+      <input type="text" class="input" placeholder="Collection Name" />
+      <button class="btn" id="saveCollection">Create</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const input = modal.querySelector('input');
+  const saveBtn = modal.querySelector('#saveCollection');
+
+  saveBtn.addEventListener('click', () => {
+    const name = input.value.trim();
+    if (name) {
+      const newCollection = {
+        id: Date.now().toString(),
+        name,
+        words: [],
+        timestamp: Date.now()
+      };
+      collections.push(newCollection);
+      localStorage.setItem('collections', JSON.stringify(collections));
+      addToCollection(newCollection.id);
+      modal.remove();
+      playSound('success');
+    }
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+}
+
+// Add collection button to word buttons
+document.getElementById('wordButtons').innerHTML += `
+  <span class="material-symbols-rounded" id="addToCollectionButton">
+    collections_bookmark
+  </span>
+`;
+
+document.getElementById('addToCollectionButton').addEventListener('click', () => {
+  showCollectionModal();
+  playSound('click');
+});
+
+// Alert function for feedback
+function showAlert(message) {
+  const alert = document.createElement('div');
+  alert.className = 'alert glass-morphism';
+  alert.textContent = message;
+  document.body.appendChild(alert);
+  
+  setTimeout(() => {
+    alert.classList.add('fade-out');
+    setTimeout(() => alert.remove(), 300);
+  }, 2000);
+}
