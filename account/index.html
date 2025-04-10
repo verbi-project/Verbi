@@ -126,7 +126,12 @@
     <audio id="clickSound" src="/sounds/click.mp3"></audio>
     <audio id="successSound" src="/sounds/success.mp3"></audio>
 
-    <script src="/Global/firebase.js" defer></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-storage-compat.js"></script>
+    
+    <!-- App scripts -->
+    <script src="/Global/firebase.js" type="module"></script>
     <script src="/account/script.js" type="module"></script>
   </body>
 </html>

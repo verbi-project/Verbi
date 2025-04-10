@@ -5,6 +5,9 @@ import {
   setUserProfile,
   getUserProfile,
   userProfile,
+  getUserCollections,
+  setUserCollections,
+  initializeUserData
 } from "/Global/firebase.js";
 
 // Initialize variables
@@ -108,33 +111,59 @@ function addWordToStack(callback = () => {}) {
 console.log(getRandomWord());
 
 // Asynchronous function to start the application
-async function start(dict) {
-  dictionary = dict; // Assign the dictionary data (if any)
-
-  // Sync favorite words between Firebase and local storage
+async function start() {
   const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+  
   if (userId) {
-    await getUserWordList(userId, (data) => {
-      if (data) {
-        // Merge Firebase data with local storage
-        const firebaseWords = JSON.parse(data);
-        const localWords = JSON.parse(localStorage.getItem('favoriteWords') || '[]');
-        
-        // Combine and deduplicate words based on text property
-        const mergedWords = [...firebaseWords, ...localWords]
-          .reduce((acc, word) => {
-            if (!acc.some(w => w.text === word.text)) {
-              acc.push(word);
-            }
-            return acc;
-          }, []);
-        
-        // Update both storages
-        favoriteWords = mergedWords;
-        localStorage.setItem('favoriteWords', JSON.stringify(mergedWords));
-        setUserWordList(userId, JSON.stringify(mergedWords));
-      }
-    });
+    try {
+      // Initialize user data structures
+      await initializeUserData(userId);
+
+      // Load and merge favorites
+      await getUserWordList(userId, (data) => {
+        if (data) {
+          const firebaseWords = JSON.parse(data);
+          const localWords = JSON.parse(localStorage.getItem('favoriteWords') || '[]');
+          
+          // Merge and deduplicate
+          const mergedWords = [...firebaseWords, ...localWords]
+            .reduce((acc, word) => {
+              if (!acc.some(w => w.text === word.text)) {
+                acc.push(word);
+              }
+              return acc;
+            }, []);
+          
+          favoriteWords = mergedWords;
+          localStorage.setItem('favoriteWords', JSON.stringify(mergedWords));
+          setUserWordList(userId, JSON.stringify(mergedWords));
+        }
+      });
+
+      // Load and merge collections
+      await getUserCollections(userId, (data) => {
+        if (data) {
+          const firebaseCollections = JSON.parse(data);
+          const localCollections = JSON.parse(localStorage.getItem('collections') || '[]');
+          
+          // Merge and deduplicate
+          const mergedCollections = [...firebaseCollections, ...localCollections]
+            .reduce((acc, collection) => {
+              if (!acc.some(c => c.id === collection.id)) {
+                acc.push(collection);
+              }
+              return acc;
+            }, []);
+          
+          collections = mergedCollections;
+          localStorage.setItem('collections', JSON.stringify(mergedCollections));
+          setUserCollections(userId, mergedCollections);
+        }
+      });
+    } catch (error) {
+      console.error('Error syncing data:', error);
+      showAlert('Error syncing your data');
+    }
   }
 
   // Check if the URL has an "index" parameter
@@ -208,14 +237,25 @@ function populateUI(wordObject) {
     playSound('click');
   }, 200);
 
-  // Update favorite button state
+  // Update favorite button state and sync with Firebase
   const favoriteBtn = document.getElementById("favorateWordButton");
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+
   if (containsWord(wordObject.word)) {
     favoriteBtn.classList.remove("material-symbols-rounded");
     favoriteBtn.classList.add("selected-material-symbol");
   } else {
     favoriteBtn.classList.add("material-symbols-rounded");
     favoriteBtn.classList.remove("selected-material-symbol");
+  }
+
+  // Initialize collections if not already done
+  if (userId) {
+    getUserCollections(userId, (data) => {
+      if (data) {
+        collections = JSON.parse(data);
+      }
+    });
   }
 }
 
@@ -391,58 +431,105 @@ document.addEventListener("keyup", (event) => {
 });
 
 // Function to update the user's favorite word list
-export function updateFavorateWordList() {
+function updateFavorateWordList() {
   const currentWord = wordList[place];
   const element = document.getElementById("favorateWordButton");
   const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
 
+  if (!userId) {
+    showAlert('Please login to save favorites');
+    return;
+  }
+
   const wordData = {
     text: currentWord.word,
-    definition: currentWord.definition,
-    partOfSpeech: currentWord.partOfSpeech,
+    definition: currentWord.def,
+    partOfSpeech: currentWord.partOfSpeech || '',
     timestamp: Date.now()
   };
 
-  if (element.classList.contains("material-symbols-rounded")) {
-    // Add to favorites
-    favoriteWords.push(wordData);
-    element.classList.remove("material-symbols-rounded");
-    element.classList.add("selected-material-symbol");
-    playSound('success');
-  } else {
-    // Remove from favorites
-    favoriteWords = favoriteWords.filter(word => word.text !== currentWord.word);
-    element.classList.remove("selected-material-symbol");
-    element.classList.add("material-symbols-rounded");
+  try {
+    if (element.classList.contains("material-symbols-rounded")) {
+      // Add to favorites
+      favoriteWords.push(wordData);
+      element.classList.remove("material-symbols-rounded");
+      element.classList.add("selected-material-symbol");
+      playSound('success');
+      showAlert('Added to favorites');
+    } else {
+      // Remove from favorites
+      favoriteWords = favoriteWords.filter(word => word.text !== currentWord.word);
+      element.classList.remove("selected-material-symbol");
+      element.classList.add("material-symbols-rounded");
+      playSound('pop');
+      showAlert('Removed from favorites');
+    }
+
+    // Update both storages
+    localStorage.setItem('favoriteWords', JSON.stringify(favoriteWords));
+    setUserWordList(userId, JSON.stringify(favoriteWords));
+    
+  } catch (error) {
+    console.error('Error updating favorites:', error);
+    showAlert('Failed to update favorites');
     playSound('pop');
-  }
-
-  // Update local storage
-  localStorage.setItem('favoriteWords', JSON.stringify(favoriteWords));
-
-  // Update Firebase if user is logged in
-  if (userId) {
-    getUserWordList(userId, (data) => {
-      const updatedData = JSON.stringify(favoriteWords);
-      setUserWordList(userId, updatedData);
-    });
   }
 }
 
-// Event listener for the favorite button
-document.getElementById("favorateWordButton").addEventListener("click", () => {
-  updateFavorateWordList();
-});
+// Event Listeners Setup
+function setupEventListeners() {
+  // Favorite button
+  document.getElementById("favorateWordButton").addEventListener("click", () => {
+    updateFavorateWordList();
+    playSound('click');
+  });
 
-// Event listener for the speaker button
-document.getElementById("speakerButton").addEventListener("click", () => {
-  speakWord();
-});
+  // Speaker button
+  document.getElementById("speakerButton").addEventListener("click", () => {
+    speakWord();
+    playSound('click');
+  });
 
-// Event listener for the share button
-document.getElementById("shareWordButton").addEventListener("click", () => {
-  copyAndShowAlert();
-});
+  // Share button
+  document.getElementById("shareWordButton").addEventListener("click", () => {
+    copyAndShowAlert();
+  });
+
+  // Collection button
+  document.getElementById("addToCollectionButton").addEventListener("click", () => {
+    showCollectionModal();
+    playSound('click');
+  });
+}
+
+// Initialize the app
+async function initApp() {
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+  if (userId) {
+    // Initialize user data
+    await initializeUserData(userId);
+    
+    // Load collections
+    getUserCollections(userId, (data) => {
+      if (data) {
+        collections = JSON.parse(data);
+      }
+    });
+
+    // Load favorites
+    getUserWordList(userId, (data) => {
+      if (data) {
+        favoriteWords = JSON.parse(data);
+      }
+    });
+  }
+
+  setupEventListeners();
+  start();
+}
+
+// Start the application
+initApp();
 
 // Function to speak the current word and definition
 const speakWord = () => {
@@ -518,24 +605,44 @@ function copyAndShowAlert() {
 // Collections Management
 let collections = JSON.parse(localStorage.getItem('collections') || '[]');
 
-function addToCollection(collectionId) {
+async function addToCollection(collectionId) {
   const currentWord = wordList[place];
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+
+  if (!userId) {
+    showAlert('Please login to use collections');
+    return;
+  }
+
   const wordData = {
     text: currentWord.word,
-    definition: currentWord.definition,
-    partOfSpeech: currentWord.partOfSpeech,
+    definition: currentWord.def,
+    partOfSpeech: currentWord.partOfSpeech || '',
     timestamp: Date.now()
   };
 
-  // Find the collection and add the word
-  const collection = collections.find(c => c.id === collectionId);
-  if (collection) {
-    if (!collection.words.some(w => w.text === wordData.text)) {
-      collection.words.push(wordData);
-      localStorage.setItem('collections', JSON.stringify(collections));
-      playSound('success');
-      showAlert('Word added to collection');
+  try {
+    // Find the collection and add the word
+    const collection = collections.find(c => c.id === collectionId);
+    if (collection) {
+      if (!collection.words.some(w => w.text === wordData.text)) {
+        collection.words.push(wordData);
+        
+        // Update both storages
+        localStorage.setItem('collections', JSON.stringify(collections));
+        await setUserCollections(userId, collections);
+        
+        playSound('success');
+        showAlert('Word added to collection');
+      } else {
+        showAlert('Word already in collection');
+        playSound('pop');
+      }
     }
+  } catch (error) {
+    console.error('Error adding to collection:', error);
+    showAlert('Failed to add to collection');
+    playSound('pop');
   }
 }
 
@@ -582,7 +689,14 @@ function showCollectionModal() {
   });
 }
 
-function showCreateCollectionModal() {
+async function showCreateCollectionModal() {
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+  
+  if (!userId) {
+    showAlert('Please login to create collections');
+    return;
+  }
+
   const modal = document.createElement('div');
   modal.className = 'modal active';
   modal.innerHTML = `
@@ -598,26 +712,43 @@ function showCreateCollectionModal() {
   const input = modal.querySelector('input');
   const saveBtn = modal.querySelector('#saveCollection');
 
-  saveBtn.addEventListener('click', () => {
+  saveBtn.addEventListener('click', async () => {
     const name = input.value.trim();
     if (name) {
-      const newCollection = {
-        id: Date.now().toString(),
-        name,
-        words: [],
-        timestamp: Date.now()
-      };
-      collections.push(newCollection);
-      localStorage.setItem('collections', JSON.stringify(collections));
-      addToCollection(newCollection.id);
-      modal.remove();
-      playSound('success');
+      try {
+        const newCollection = {
+          id: Date.now().toString(),
+          name,
+          words: [],
+          timestamp: Date.now()
+        };
+        
+        collections.push(newCollection);
+        
+        // Update both storages
+        localStorage.setItem('collections', JSON.stringify(collections));
+        await setUserCollections(userId, collections);
+        
+        // Add current word if exists
+        if (wordList[place]) {
+          await addToCollection(newCollection.id);
+        }
+        
+        modal.remove();
+        playSound('success');
+        showAlert('Collection created');
+      } catch (error) {
+        console.error('Error creating collection:', error);
+        showAlert('Failed to create collection');
+        playSound('pop');
+      }
     }
   });
 
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       modal.remove();
+      playSound('pop');
     }
   });
 }
