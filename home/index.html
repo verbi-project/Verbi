@@ -16,12 +16,13 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
     />
- <script
-      src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"
-      defer
-    ></script>
-    <!-- import the webpage's javascript file -->
-    <script src="/home/script.js" defer type="module"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-storage-compat.js"></script>
+    
+    <!-- App scripts -->
+    <script src="/Global/firebase.js" type="module"></script>
+    <script src="/home/script.js" type="module"></script>
   </head>
   <body id="body">
     <img
@@ -39,11 +40,9 @@
     </div>
     <div id="wordButtons">
       <span class="material-symbols-rounded" id="shareWordButton"> ios_share </span>
-      <span class="material-symbols-rounded" id="speakerButton"onclick="speakWord"> volume_up </span>
-      <span class="material-symbols-rounded" id="favorateWordButton" > favorite </span>
-      
-      <!-- collection's feature -->
-      <span class="material-symbols-rounded"> collections_bookmark </span>
+      <span class="material-symbols-rounded" id="speakerButton"> volume_up </span>
+      <span class="material-symbols-rounded" id="favorateWordButton"> favorite </span>
+      <span class="material-symbols-rounded" id="addToCollectionButton"> collections_bookmark </span>
     </div>
     <div id="ApplicationButtons">
      <div id="rightIcons">
