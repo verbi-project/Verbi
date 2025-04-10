@@ -237,16 +237,18 @@ function populateUI(wordObject) {
     playSound('click');
   }, 200);
 
-  // Update favorite button state and sync with Firebase
+  // Update favorite button state
   const favoriteBtn = document.getElementById("favorateWordButton");
-  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
-
-  if (containsWord(wordObject.word)) {
-    favoriteBtn.classList.remove("material-symbols-rounded");
+  
+  // Clear existing classes
+  favoriteBtn.className = '';
+  
+  // Add appropriate class based on favorite status
+  if (favoriteWords.some(word => word.text === wordObject.word)) {
     favoriteBtn.classList.add("selected-material-symbol");
+    favoriteBtn.style.color = 'var(--primary)';
   } else {
     favoriteBtn.classList.add("material-symbols-rounded");
-    favoriteBtn.classList.remove("selected-material-symbol");
   }
 
   // Initialize collections if not already done
@@ -413,20 +415,35 @@ function myfunction(el, d) {
 detectswipe("body", selectAndDisplayWord);
 
 // Function to handle word selection and display based on swipes
-function selectAndDisplayWord() {
-  populateUI(getNextWord("f"));
-  place++;
+function selectAndDisplayWord(direction = "f") {
+  const nextWord = getNextWord(direction);
+  if (nextWord) {
+    populateUI(nextWord);
+    if (direction === "f" || direction === "forward") {
+      place++;
+    } else {
+      place = Math.max(0, place - 1);
+    }
+    playSound('click');
+  }
 }
 
 // Event listener for keyboard input (space and arrow keys)
 document.addEventListener("keyup", (event) => {
   if (event.code === "Space" || event.code === "ArrowDown") {
-    populateUI(getNextWord("f"));
-    place++;
+    selectAndDisplayWord("f");
   }
   if (event.code === "ArrowUp") {
-    populateUI(getNextWord("p"));
-    place--;
+    selectAndDisplayWord("p");
+  }
+});
+
+// Swipe detection
+detectswipe("body", (el, direction) => {
+  if (direction === "l") {
+    selectAndDisplayWord("f");
+  } else if (direction === "r") {
+    selectAndDisplayWord("p");
   }
 });
 
@@ -449,13 +466,17 @@ function updateFavorateWordList() {
   };
 
   try {
-    if (element.classList.contains("material-symbols-rounded")) {
+    const isCurrentlyFavorited = element.classList.contains("selected-material-symbol");
+    
+    if (!isCurrentlyFavorited) {
       // Add to favorites
-      favoriteWords.push(wordData);
+      if (!favoriteWords.some(w => w.text === wordData.text)) {
+        favoriteWords.push(wordData);
+        playSound('success');
+        showAlert('Added to favorites');
+      }
       element.classList.remove("material-symbols-rounded");
       element.classList.add("selected-material-symbol");
-      playSound('success');
-      showAlert('Added to favorites');
     } else {
       // Remove from favorites
       favoriteWords = favoriteWords.filter(word => word.text !== currentWord.word);
@@ -647,18 +668,26 @@ async function addToCollection(collectionId) {
 }
 
 function showCollectionModal() {
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+  
+  if (!userId) {
+    showAlert('Please login to use collections');
+    return;
+  }
+
   const modal = document.createElement('div');
   modal.className = 'modal active';
   modal.innerHTML = `
     <div class="modal-content glass-morphism">
       <h3>Add to Collection</h3>
       <div class="collections-list">
-        ${collections.map(collection => `
+        ${collections.length ? collections.map(collection => `
           <button class="collection-item" data-id="${collection.id}">
             <span class="material-symbols-rounded">collections_bookmark</span>
             <span>${collection.name}</span>
+            <span class="word-count">${collection.words?.length || 0} words</span>
           </button>
-        `).join('')}
+        `).join('') : '<p class="empty-state">No collections yet. Create your first collection!</p>'}
       </div>
       <button class="btn" id="createNewCollection">
         <span class="material-symbols-rounded">add</span>
@@ -666,6 +695,16 @@ function showCollectionModal() {
       </button>
     </div>
   `;
+
+  // Add collection list styles
+  const style = document.createElement('style');
+  style.textContent = `
+    .collections-list { max-height: 300px; overflow-y: auto; }
+    .collection-item { width: 100%; justify-content: space-between; }
+    .word-count { font-size: 0.9em; opacity: 0.7; }
+    .empty-state { text-align: center; opacity: 0.7; padding: 2rem; }
+  `;
+  document.head.appendChild(style);
 
   document.body.appendChild(modal);
 
