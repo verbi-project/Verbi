@@ -1,0 +1,41 @@
+/* Auth page styling */
+body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+descope-wc {
+  width: min(90%, 600px);
+  background: var(--surface-alpha);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin: auto;
+}
+
+/* Override Descope form elements to match our design system */
+descope-wc::part(input) {
+  background: var(--surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: var(--foreground) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+descope-wc::part(button) {
+  background: var(--primary) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease !important;
+}
+
+descope-wc::part(button):hover {
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+}

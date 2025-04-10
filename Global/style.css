@@ -1,29 +1,70 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter&family=Noto+Emoji&family=Bree+Serif&display=swap");
+
+:root {
+  /* Light mode colors */
+  --primary-light: #2563eb;
+  --accent-light: #7c3aed;
+  --background-light: #f8fafc;
+  --foreground-light: #1e293b;
+  --surface-light: #ffffff;
+  --surface-alpha-light: rgba(255, 255, 255, 0.8);
+
+  /* Dark mode colors */
+  --primary-dark: #60a5fa;
+  --accent-dark: #a78bfa;
+  --background-dark: #0f172a;
+  --foreground-dark: #e2e8f0;
+  --surface-dark: #1e293b;
+  --surface-alpha-dark: rgba(30, 41, 59, 0.8);
+
+  /* Default to light mode */
+  --primary: var(--primary-light);
+  --accent: var(--accent-light);
+  --background: var(--background-light);
+  --foreground: var(--foreground-light);
+  --surface: var(--surface-light);
+  --surface-alpha: var(--surface-alpha-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: var(--primary-dark);
+    --accent: var(--accent-dark);
+    --background: var(--background-dark);
+    --foreground: var(--foreground-dark);
+    --surface: var(--surface-dark);
+    --surface-alpha: var(--surface-alpha-dark);
+  }
+}
+
 *,
 *:before,
 *:after {
-  box-sizing: inherit;
-  font-family: "Bree Serif", serif;
-  border-radius: 22px;
-  overflow: hidden;
-  padding: 8px;
-}
-html {
   box-sizing: border-box;
-  font-size: 22px;
-  overflow: hidden;
-  border-radius: 22px;
-  color: whitesmoke;
-  background-color: black;
+  margin: 0;
+  padding: 0;
 }
 
-/* adjust typography defaults */
+html {
+  font-family: "Bree Serif", serif;
+  font-size: 16px;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
 body {
   line-height: 1.5;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow: hidden;
+  flex-direction: column;
+}
+
+.glass-morphism {
+  background: var(--surface-alpha);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
 }
 hr {
   padding: 0px !important;
@@ -36,63 +77,77 @@ hr {
     format("woff2");
 }
 
+/* Material Icons */
 .material-symbols-rounded,
 .selected-material-symbol {
   font-family: "Material Symbols Rounded", sans-serif;
-  font-weight: normal;
-  font-style: normal;
   font-size: 24px;
   line-height: 1;
+  font-weight: normal;
+  font-style: normal;
   letter-spacing: normal;
   text-transform: none;
-  display: inline-block;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
   -webkit-font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
+  padding: 8px;
+  color: var(--foreground);
+  transition: all 0.2s ease;
 }
+
 .material-symbols-rounded {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
   user-select: none;
 }
+
 .selected-material-symbol {
-  font-family: "Material Symbols Rounded", sans-serif;
   font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24 !important;
-  user-select: none;
+  color: var(--primary);
 }
+
+/* Typography */
 .subtitle {
-  color: lightgray;
-  font-size: 18px;
-  line-height: 1;
+  color: var(--foreground);
+  opacity: 0.7;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
+
+/* Layout */
 .full-width {
   width: 100%;
 }
+
+/* Background Image */
 #backgroundImage {
-  position: absolute;
+  position: fixed;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  filter: blur(16px);
-  z-index: 0;
-  padding: 0px;
-  margin-top: -20px;
+  filter: blur(16px) brightness(0.7);
   z-index: -1;
+  padding: 0;
+  margin: 0;
 }
+
+/* Content Container */
 .content {
+  position: relative;
   z-index: 1;
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: min(90%, 600px);
+  margin: 2rem auto;
+  padding: 1.5rem;
   display: flex;
-  width: max(min(350px, 100%), 80%);
-  overflow: hidden;
-  padding: 12px;
   flex-direction: column;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.1);
+  gap: 1rem;
+  background: var(--surface-alpha);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 .copy-alert-container {
   position: fixed;
@@ -108,4 +163,94 @@ hr {
           z-index: 9999;
           transition: opacity 0.3s ease-in-out; /* Add transition */
 
+}
+/* Buttons and Interactive Elements */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--accent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+/* Card Components */
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Input Fields */
+.input {
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: var(--foreground);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Icons and Badges */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* Animation utilities */
+.animate-fade {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

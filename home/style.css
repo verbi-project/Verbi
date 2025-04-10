@@ -4,18 +4,19 @@
 
 
 #content {
-  z-index: 1;
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  margin-top: 4rem;
+  width: min(90%, 600px);
+  padding: 2rem;
   display: flex;
-  width: max(min(350px, 100%), 80%);
-  overflow: hidden;
-  padding: 12px;
   flex-direction: column;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.1);
+  gap: 1rem;
+  background: var(--surface-alpha);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 #word {
   font-size: 66px;
@@ -38,56 +39,88 @@
   font-style: italic;
 }
 #wordButtons {
-  position: absolute;
-  top: calc(50% + calc(max(min(350px, 100%), 60%) * 0.25));
-  width: max(min(350px, 100%), 80%);
-  background-color: rgba(0, 0, 0, 0.1);
-  height: 84px;
-  overflow: hidden;
-  margin-top: 8px;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  margin: 2rem auto;
+  width: min(90%, 600px);
+  padding: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-around;
+  background: var(--surface-alpha);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
+
 #wordButtons span {
-  font-size: 54px;
-  padding: 4px;
-  width: 92px;
-  border-radius: 11px;
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
-  align-content: center;
-  flex-direction: row;
+  align-items: center;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#wordButtons span:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
 }
 
 #ApplicationButtons {
-  position: absolute;
-  top: calc(100% - 100px);
-  width: max(min(350px, 100%), 80%);
-  height: 84px;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90%, 600px);
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  align-content: center;
+  background: var(--surface-alpha);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
+
 #ApplicationButtons div {
-  width: auto;
   display: flex;
+  gap: 1rem;
 }
+
 #ApplicationButtons div span {
-  font-size: 38px;
-  background-color: rgba(0, 0, 0, 0.1);
-  height: 60px;
-  width: 60px;
-  min-width: 60px;
+  font-size: 28px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  align-content: center;
-  margin: 22px;
-  aspect-ratio: 1/1;
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#ApplicationButtons div span:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.double-width-icon {
+  width: auto !important;
+  padding: 0 1.5rem !important;
+  border-radius: 25px !important;
+  background: var(--primary) !important;
+  color: white !important;
+  font-family: "Bree Serif", serif !important;
 }
 .double-width-icon {
   width: 240px !important;
