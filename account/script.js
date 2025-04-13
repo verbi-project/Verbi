@@ -11,11 +11,11 @@
         } from "/Global/firebase.js";
         // Get userId from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
-var  userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+var userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
         
         if (!userId) {
             console.error("No user ID provided");
-            window.location.href = '/auth'; // Redirect to auth if no userId
+          //  window.location.href = '/auth'; // Redirect to auth if no userId
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -59,6 +59,225 @@ var  userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
         }
 
         // Theme management
+// UI Customization management
+const customizeUIButton = document.getElementById('customizeUI');
+const uiCustomizationModal = document.getElementById('uiCustomizationModal');
+const cornerRadiusSelect = document.getElementById('cornerRadius');
+const fontFamilySelect = document.getElementById('fontFamily');
+const fontSizeSelect = document.getElementById('fontSize');
+const textColorInput = document.getElementById('textColor');
+const saveUISettingsButton = document.getElementById('saveUISettings');
+
+// Load saved UI settings from localStorage
+
+
+// active UI customization modal
+customizeUIButton.addEventListener('click', () => {
+    uiCustomizationModal.classList.add('active');
+    playSound('pop');
+});
+
+// Close modal when clicking outside
+uiCustomizationModal.addEventListener('click', (e) => {
+    if (e.target === uiCustomizationModal) {
+        uiCustomizationModal.classList.remove('active');
+        playSound('pop');
+    }
+});
+
+// Live preview font changes
+fontFamilySelect.addEventListener('change', () => {
+    const fontPreview = document.getElementById('fontPreview');
+    fontPreview.style.fontFamily = `var(${fontFamilySelect.value})`;
+});
+
+// Corner radius example clicks
+document.querySelectorAll('.corner-example').forEach(example => {
+    example.addEventListener('click', () => {
+        const style = example.style.borderRadius;
+        const value = style === 'var(--corner-radius-sharp)' ? '--corner-radius-sharp' :
+                     style === 'var(--corner-radius-subtle)' ? '--corner-radius-subtle' :
+                     style === 'var(--corner-radius-modern)' ? '--corner-radius-modern' :
+                     style === 'var(--corner-radius-smooth)' ? '--corner-radius-smooth' :
+                     '--corner-radius-bubble';
+        
+        cornerRadiusSelect.value = value;
+        document.documentElement.style.setProperty('--user-corner-radius', `var(${value})`);
+        playSound('click');
+    });
+});
+
+// Color preset handling
+const colorPresets = document.querySelectorAll('.color-preset');
+const backgroundColorInput = document.getElementById('backgroundColor');
+
+colorPresets.forEach(preset => {
+    preset.addEventListener('click', () => {
+        const color = preset.dataset.color;
+        document.documentElement.style.setProperty('--user-background-color', color);
+        
+        // Update active state
+        colorPresets.forEach(p => p.classList.remove('active'));
+        preset.classList.add('active');
+        
+        // If it's a CSS variable, get its computed value for the color picker
+        const computedColor = getComputedStyle(document.documentElement)
+            .getPropertyValue(color.replace('var(', '').replace(')', ''))
+            .trim();
+        backgroundColorInput.value = convertRGBToHex(computedColor);
+        
+        playSound('click');
+    });
+});
+
+// Helper function to convert RGB to Hex
+function convertRGBToHex(rgb) {
+    // Handle both rgb(r,g,b) and #hex formats
+    if (rgb.startsWith('#')) return rgb;
+    const rgbArr = rgb.match(/\d+/g);
+    if (!rgbArr) return '#ffffff';
+    const [r, g, b] = rgbArr;
+    return '#' + ((1 << 24) + (+r << 16) + (+g << 8) + +b).toString(16).slice(1);
+}
+
+// Live preview opacity changes
+const opacityInput = document.getElementById('uiOpacity');
+const opacityValue = document.getElementById('opacityValue');
+opacityInput.addEventListener('input', () => {
+    opacityValue.textContent = opacityInput.value + '%';
+    document.documentElement.style.setProperty('--user-opacity', opacityInput.value / 100);
+});
+
+// Custom color input handling
+backgroundColorInput.addEventListener('input', () => {
+    document.documentElement.style.setProperty('--user-background-color', backgroundColorInput.value);
+    colorPresets.forEach(p => p.classList.remove('active'));
+});
+
+// Save UI settings
+saveUISettingsButton.addEventListener('click', async () => {
+    const settings = {
+        cornerRadius: cornerRadiusSelect.value,
+        fontFamily: fontFamilySelect.value,
+        fontSize: fontSizeSelect.value,
+        textColor: textColorInput.value,
+        backgroundColor: document.getElementById('backgroundColor').value,
+        uiOpacity: opacityInput.value / 100
+    };
+    
+    // Apply settings
+    document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+    document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+    document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+    document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+    document.documentElement.style.setProperty('--user-background-color', settings.backgroundColor);
+    document.documentElement.style.setProperty('--user-opacity', settings.uiOpacity);
+    
+    // Save to Firebase profile
+    try {
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        const profile = profileData ? JSON.parse(profileData) : {};
+        profile.uiSettings = settings;
+        await setUserProfile(userId, JSON.stringify(profile));
+        
+        // Close modal and active success message
+        uiCustomizationModal.classList.remove('active');
+        playSound('success');
+        
+        const successToast = document.getElementById('successToast');
+        successToast.classList.add('active');
+        setTimeout(() => successToast.classList.remove('active'), 3000);
+    } catch (error) {
+        console.error('Error saving UI settings:', error);
+        
+        // active error message
+        const errorToast = document.getElementById('errorToast');
+        errorToast.classList.add('active');
+        setTimeout(() => errorToast.classList.remove('active'), 3000);
+        playSound('error');
+    }
+});
+
+// Load settings from Firebase profile
+async function loadUISettings() {
+  const settings = JSON.parse(localStorage.getItem('uiSettings') || '{}');
+    if (settings.cornerRadius) {
+        document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+        cornerRadiusSelect.value = settings.cornerRadius;
+    }
+    if (settings.fontFamily) {
+        document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+        fontFamilySelect.value = settings.fontFamily;
+    }
+    if (settings.fontSize) {
+        document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+        fontSizeSelect.value = settings.fontSize;
+    }
+    if (settings.textColor) {
+        document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+        textColorInput.value = settings.textColor;
+    }
+    try {
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        if (profileData) {
+            const profile = JSON.parse(profileData);
+            const settings = profile.uiSettings || {};
+
+            // Apply settings if they exist
+            if (settings.cornerRadius) {
+                document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+                cornerRadiusSelect.value = settings.cornerRadius;
+            }
+            if (settings.fontFamily) {
+                document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+                fontFamilySelect.value = settings.fontFamily;
+                document.getElementById('fontPreview').style.fontFamily = `var(${settings.fontFamily})`;
+            }
+            if (settings.fontSize) {
+                document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+                fontSizeSelect.value = settings.fontSize;
+            }
+            if (settings.textColor) {
+                document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+                textColorInput.value = settings.textColor;
+            }
+            if (settings.backgroundColor) {
+                document.documentElement.style.setProperty('--user-background-color', settings.backgroundColor);
+                
+                // Handle both preset and custom colors
+                if (settings.backgroundColor.startsWith('var(--bg-color-')) {
+                    // It's a preset color
+                    const activePreset = document.querySelector(`[data-color="${settings.backgroundColor}"]`);
+                    if (activePreset) {
+                        colorPresets.forEach(p => p.classList.remove('active'));
+                        activePreset.classList.add('active');
+                        
+                        // Update color picker with computed value
+                        const computedColor = getComputedStyle(document.documentElement)
+                            .getPropertyValue(settings.backgroundColor.replace('var(', '').replace(')', ''))
+                            .trim();
+                        backgroundColorInput.value = convertRGBToHex(computedColor);
+                    }
+                } else {
+                    // It's a custom color
+                    backgroundColorInput.value = settings.backgroundColor;
+                    colorPresets.forEach(p => p.classList.remove('active'));
+                }
+            }
+            if (settings.uiOpacity !== undefined) {
+                document.documentElement.style.setProperty('--user-opacity', settings.uiOpacity);
+                opacityInput.value = settings.uiOpacity * 100;
+                opacityValue.textContent = Math.round(settings.uiOpacity * 100) + '%';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading UI settings:', error);
+    }
+}
+
+// Load settings on page load
+loadUISettings();
+
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 

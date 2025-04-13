@@ -343,7 +343,7 @@ function populateUI(wordObject) {
     containsWord(wordObject.word).then((isFavorite) => {
         if (isFavorite) {
             favoriteBtn.classList.add("selected-material-symbol");
-            favoriteBtn.style.color = "var(--primary)";
+            favoriteBtn.style.color = "var(--user-background-color)";
         } else {
             favoriteBtn.classList.add("material-symbols-rounded");
         }
@@ -576,7 +576,7 @@ async function toggleFavoriteWord() {
             showAlert("Added to favorites");
             element.classList.remove("material-symbols-rounded");
             element.classList.add("selected-material-symbol");
-            element.style.color = "var(--primary)";
+            element.style.color = "var(--user-background-color)";
         } else {
             // Remove from favorites
             localFavoriteWordsCache = localFavoriteWordsCache.filter(

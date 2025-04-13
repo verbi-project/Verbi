@@ -14,7 +14,7 @@ body {
   flex-direction: column;
   justify-content: center;
   gap: 1rem;
-  background: var(--surface-alpha);
+  background: var(--user-background-color);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -99,7 +99,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: var(--surface-alpha);
+  background: var(--user-background-color);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -114,15 +114,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--surface);
-  color: var(--foreground);
+  color: var(--user-background-color);
+  background: var(--user-text-color);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 #wordButtons span:hover {
-  background: var(--primary);
-  color: white;
+   color: var(--user-background-color);
+background: var(--user-text-color);
   transform: translateY(-2px);
 }
 
@@ -136,7 +136,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--surface-alpha);
+  background: var(--user-background-color);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -156,15 +156,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--surface);
-  color: var(--foreground);
+  color: var(--user-background-color);
+  background: var(--user-text-color);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 #ApplicationButtons div span:hover {
-  background: var(--primary);
-  color: white;
+  background: var(--user-text-color);
+  color: var(--user-background-color);
   transform: translateY(-2px);
 }
 
@@ -172,12 +172,13 @@ body {
   width: auto !important;
   padding: 0 1.5rem !important;
   border-radius: 25px !important;
-  background: var(--primary) !important;
-  color: white !important;
+  color: var(--user-text-color);
   font-family: "Bree Serif", serif !important;
-}
-.double-width-icon {
+
   width: 240px !important;
+}
+span .material-symbols-rounded {
+  color: var(--user-text-color) !important;
 }
 
 /* Collections Modal Styles */
@@ -207,7 +208,7 @@ body {
 
 .modal-content h3 {
   margin: 0 0 1.5rem;
-  color: var(--foreground);
+  color: var(--user-text-color);
 }
 
 .collections-list {
@@ -224,10 +225,10 @@ body {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--surface);
+  color: var(--user-background-color);
   border: none;
   border-radius: 12px;
-  color: var(--foreground);
+  background: var(--user-text-color);
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
@@ -235,8 +236,8 @@ body {
 }
 
 .collection-item:hover {
-  background: var(--primary);
-  color: white;
+  background: var(--user-background-color);
+  color: var(--user-text-color);
   transform: translateX(4px);
 }
 
@@ -246,8 +247,8 @@ body {
   margin-bottom: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: var(--surface);
-  color: var(--foreground);
+  background: var(--user-background-color);
+  color: var(--user-text-color);
   font-size: 1rem;
 }
 
@@ -263,10 +264,10 @@ body {
   left: 50%;
   transform: translateX(-50%);
   padding: 1rem 2rem;
-  background: var(--surface-alpha);
+  background: var(--user-background-color);
   backdrop-filter: blur(12px);
   border-radius: 12px;
-  color: var(--foreground);
+  color: var(--user-text-color);
   z-index: 1000;
   animation: slideUp 0.3s ease-out;
 }
@@ -303,7 +304,7 @@ body {
 }
 
 .collections-list::-webkit-scrollbar-track {
-  background: var(--surface);
+  background: var(--user-background-color);
   border-radius: 4px;
 }
 

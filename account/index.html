@@ -111,11 +111,92 @@
             <span>Sound Effects</span>
             <span class="material-symbols-rounded">arrow_forward_ios</span>
           </button>
+          <button class="setting-item" id="customizeUI">
+            <span class="material-symbols-rounded">palette</span>
+            <span>Customize UI</span>
+            <span class="material-symbols-rounded">arrow_forward_ios</span>
+          </button>
         </div>
       </section>
     </main>
 
     <!-- Modals -->
+    <div class="modal" id="uiCustomizationModal">
+      <div class="modal-content glass-morphism">
+        <h3>Customize UI</h3>
+        
+        <div class="settings-group">
+          <label>Corner Style</label>
+          <div class="corner-examples">
+            <div class="corner-example" style="border-radius: var(--corner-radius-sharp)">Sharp</div>
+            <div class="corner-example" style="border-radius: var(--corner-radius-subtle)">Subtle</div>
+            <div class="corner-example" style="border-radius: var(--corner-radius-modern)">Modern</div>
+            <div class="corner-example" style="border-radius: var(--corner-radius-smooth)">Smooth</div>
+            <div class="corner-example" style="border-radius: var(--corner-radius-bubble)">Bubble</div>
+          </div>
+          <select id="cornerRadius" class="input">
+            <option value="--corner-radius-sharp">Sharp</option>
+            <option value="--corner-radius-subtle">Subtle</option>
+            <option value="--corner-radius-modern" selected>Modern</option>
+            <option value="--corner-radius-smooth">Smooth</option>
+            <option value="--corner-radius-bubble">Bubble</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label>Font Family</label>
+          <select id="fontFamily" class="input">
+            <option value="--font-sans" selected>Inter (Sans-serif)</option>
+            <option value="--font-serif">Bree Serif</option>
+            <option value="--font-mono">JetBrains Mono</option>
+            <option value="--font-heading">Playfair Display</option>
+            <option value="--font-reading">Merriweather</option>
+            <option value="--font-code">Fira Code</option>
+            <option value="--font-elegant">Cormorant Garamond</option>
+            <option value="--font-casual">Quicksand</option>
+            <option value="--font-handwriting">Dancing Script</option>
+          </select>
+          <div class="font-preview" id="fontPreview">
+            The quick brown fox jumps over the lazy dog
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>Font Size</label>
+          <select id="fontSize" class="input">
+            <option value="--text-sm">Small</option>
+            <option value="--text-base" selected>Medium</option>
+            <option value="--text-lg">Large</option>
+            <option value="--text-xl">Extra Large</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label>Text Color</label>
+          <input type="color" id="textColor" class="input" value="#1e293b">
+        </div>
+        <div class="settings-group">
+          <label>Background Color</label>
+          <div class="color-presets">
+            <button class="color-preset" data-color="var(--bg-color-light)" style="background-color: var(--bg-color-light);" title="Light"></button>
+            <button class="color-preset" data-color="var(--bg-color-cream)" style="background-color: var(--bg-color-cream);" title="Cream"></button>
+            <button class="color-preset" data-color="var(--bg-color-sage)" style="background-color: var(--bg-color-sage);" title="Sage"></button>
+            <button class="color-preset" data-color="var(--bg-color-sky)" style="background-color: var(--bg-color-sky);" title="Sky"></button>
+            <button class="color-preset" data-color="var(--bg-color-lavender)" style="background-color: var(--bg-color-lavender);" title="Lavender"></button>
+            <button class="color-preset" data-color="var(--bg-color-rose)" style="background-color: var(--bg-color-rose);" title="Rose"></button>
+          </div>
+          <div class="custom-color">
+            <label>Custom Color</label>
+            <input type="color" id="backgroundColor" class="input" value="#ffffff">
+          </div>
+        </div>
+        <div class="settings-group">
+          <label>UI Transparency</label>
+          <div class="opacity-control">
+            <input type="range" id="uiOpacity" min="0" max="100" value="75" class="input">
+            <span id="opacityValue">75%</span>
+          </div>
+        </div>
+        <button class="btn" id="saveUISettings">Save Changes</button>
+      </div>
+    </div>
     <div class="modal" id="backgroundModal">
       <div class="modal-content glass-morphism">
         <h3>Choose Background</h3>
@@ -134,13 +215,26 @@
 
 
 
-    <script src="/Global/firebase.js" type="module"></script>
-    <script src="/account/script.js" type="module"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App scripts -->
+    <script src="/Global/firebase.js" type="module"></script>
+    <script src="/Global/ui-settings.js" type="module"></script>
+    <script src="/account/script.js" type="module"></script>
 
    
+    <!-- Toast Notifications -->
+    <div class="toast-container">
+      <div class="toast success-toast" id="successToast">
+        <span class="material-symbols-rounded">check_circle</span>
+        <span class="toast-message">Settings saved successfully!</span>
+      </div>
+      <div class="toast error-toast" id="errorToast">
+        <span class="material-symbols-rounded">error</span>
+        <span class="toast-message">Failed to save settings. Please try again.</span>
+      </div>
+    </div>
   </body>
 </html>

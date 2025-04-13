@@ -15,7 +15,18 @@ export async function syncData(userId, userName) {
   var userData = null;
   // Gets the data for the aformentioned usercode
   await getData("profile.json", userId, async (data) => {
-    let userInfo = { id: userId, username: userName }; // infomation for the user
+    let userInfo = { 
+      id: userId, 
+      username: userName,
+      uiSettings: {
+        cornerRadius: '--corner-radius-modern',
+        fontFamily: '--font-serif',
+        fontSize: '--text-base',
+        textColor: '#1e293b',
+        backgroundColor: '#ffffff',
+        uiOpacity: 0.75,
+      }
+    };
     if (data == null || undefined) {
       // The user is new
       await setData("profile.json", userId, JSON.stringify(userInfo));
