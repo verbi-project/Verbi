@@ -12,6 +12,7 @@
         // Get userId from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
 const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+
         
         if (!userId) {
             console.error("No user ID provided");
@@ -70,6 +71,7 @@ const saveUISettingsButton = document.getElementById('saveUISettings');
 
 // Load saved UI settings from localStorage
 
+
 // active UI customization modal
 customizeUIButton.addEventListener('click', () => {
     uiCustomizationModal.classList.add('active');
@@ -80,6 +82,7 @@ customizeUIButton.addEventListener('click', () => {
 uiCustomizationModal.addEventListener('click', (e) => {
     if (e.target === uiCustomizationModal) {
         uiCustomizationModal.classList.remove('active');
+
         playSound('pop');
     }
 });
@@ -228,6 +231,7 @@ saveUISettingsButton.addEventListener('click', async () => {
         const errorToast = document.getElementById('errorToast');
         errorToast.classList.add('active');
         setTimeout(() => errorToast.classList.remove('active'), 3000);
+
         playSound('error');
     }
 });
@@ -251,6 +255,7 @@ async function loadUISettings() {
         document.documentElement.style.setProperty('--user-text-color', settings.textColor);
         textColorInput.value = settings.textColor;
     }
+
     try {
         const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
         if (profileData) {
