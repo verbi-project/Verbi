@@ -11,11 +11,11 @@
         } from "/Global/firebase.js";
         // Get userId from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
-var userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
         
         if (!userId) {
             console.error("No user ID provided");
-          //  window.location.href = '/auth'; // Redirect to auth if no userId
+            window.location.href = '/auth'; // Redirect to auth if no userId
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -70,7 +70,6 @@ const saveUISettingsButton = document.getElementById('saveUISettings');
 
 // Load saved UI settings from localStorage
 
-
 // active UI customization modal
 customizeUIButton.addEventListener('click', () => {
     uiCustomizationModal.classList.add('active');
@@ -108,8 +107,42 @@ document.querySelectorAll('.corner-example').forEach(example => {
 });
 
 // Color preset handling
-const colorPresets = document.querySelectorAll('.color-preset');
+const colorPresets = document.querySelectorAll('.setting-group:not(:has(#accentColor)) .color-preset');
+const accentPresets = document.querySelectorAll('.setting-group:has(#accentColor) .color-preset');
 const backgroundColorInput = document.getElementById('backgroundColor');
+const accentColorInput = document.getElementById('accentColor');
+
+// Handle accent color presets
+accentPresets.forEach(preset => {
+    preset.addEventListener('click', () => {
+        const color = preset.dataset.color;
+        document.documentElement.style.setProperty('--user-accent-color', color);
+        document.documentElement.style.setProperty('--icon-color', color);
+        
+        // Update active state
+        accentPresets.forEach(p => p.classList.remove('active'));
+        preset.classList.add('active');
+        
+        // If it's a CSS variable, get its computed value for the color picker
+        if (color.startsWith('var(')) {
+            const computedColor = getComputedStyle(document.documentElement)
+                .getPropertyValue(color.replace('var(', '').replace(')', ''))
+                .trim();
+            accentColorInput.value = convertRGBToHex(computedColor);
+        } else {
+            accentColorInput.value = color;
+        }
+        
+        playSound('click');
+    });
+});
+
+// Custom accent color input handling
+accentColorInput.addEventListener('input', () => {
+    document.documentElement.style.setProperty('--user-accent-color', accentColorInput.value);
+    document.documentElement.style.setProperty('--icon-color', accentColorInput.value);
+    accentPresets.forEach(p => p.classList.remove('active'));
+});
 
 colorPresets.forEach(preset => {
     preset.addEventListener('click', () => {
@@ -161,7 +194,8 @@ saveUISettingsButton.addEventListener('click', async () => {
         fontFamily: fontFamilySelect.value,
         fontSize: fontSizeSelect.value,
         textColor: textColorInput.value,
-        backgroundColor: document.getElementById('backgroundColor').value,
+        backgroundColor: backgroundColorInput.value,
+        accentColor: accentColorInput.value,
         uiOpacity: opacityInput.value / 100
     };
     
@@ -200,7 +234,7 @@ saveUISettingsButton.addEventListener('click', async () => {
 
 // Load settings from Firebase profile
 async function loadUISettings() {
-  const settings = JSON.parse(localStorage.getItem('uiSettings') || '{}');
+    const settings = JSON.parse(localStorage.getItem('uiSettings') || '{}');
     if (settings.cornerRadius) {
         document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
         cornerRadiusSelect.value = settings.cornerRadius;
@@ -244,7 +278,7 @@ async function loadUISettings() {
             if (settings.backgroundColor) {
                 document.documentElement.style.setProperty('--user-background-color', settings.backgroundColor);
                 
-                // Handle both preset and custom colors
+                // Handle both preset and custom colors for background
                 if (settings.backgroundColor.startsWith('var(--bg-color-')) {
                     // It's a preset color
                     const activePreset = document.querySelector(`[data-color="${settings.backgroundColor}"]`);
@@ -262,6 +296,32 @@ async function loadUISettings() {
                     // It's a custom color
                     backgroundColorInput.value = settings.backgroundColor;
                     colorPresets.forEach(p => p.classList.remove('active'));
+                }
+            }
+
+            // Handle accent color
+            if (settings.accentColor) {
+                document.documentElement.style.setProperty('--user-accent-color', settings.accentColor);
+                document.documentElement.style.setProperty('--icon-color', settings.accentColor);
+                
+                // Handle both preset and custom colors for accent
+                if (settings.accentColor.startsWith('var(')) {
+                    // It's a preset color
+                    const activePreset = document.querySelector(`[data-color="${settings.accentColor}"]`);
+                    if (activePreset) {
+                        accentPresets.forEach(p => p.classList.remove('active'));
+                        activePreset.classList.add('active');
+                        
+                        // Update color picker with computed value
+                        const computedColor = getComputedStyle(document.documentElement)
+                            .getPropertyValue(settings.accentColor.replace('var(', '').replace(')', ''))
+                            .trim();
+                        accentColorInput.value = convertRGBToHex(computedColor);
+                    }
+                } else {
+                    // It's a custom color
+                    accentColorInput.value = settings.accentColor;
+                    accentPresets.forEach(p => p.classList.remove('active'));
                 }
             }
             if (settings.uiOpacity !== undefined) {

@@ -14,7 +14,7 @@ body {
   flex-direction: column;
   justify-content: center;
   gap: 1rem;
-  background: var(--user-background-color);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -99,7 +99,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: var(--user-background-color);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -114,15 +114,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--user-background-color);
-  background: var(--user-text-color);
+  background: var(--surface);
+  color: var(--foreground);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 #wordButtons span:hover {
-   color: var(--user-background-color);
-background: var(--user-text-color);
+  background: var(--primary);
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -136,7 +136,7 @@ background: var(--user-text-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--user-background-color);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -156,15 +156,15 @@ background: var(--user-text-color);
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--user-background-color);
-  background: var(--user-text-color);
+  background: var(--surface);
+  color: var(--foreground);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 #ApplicationButtons div span:hover {
-  background: var(--user-text-color);
-  color: var(--user-background-color);
+  background: var(--primary);
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -172,13 +172,12 @@ background: var(--user-text-color);
   width: auto !important;
   padding: 0 1.5rem !important;
   border-radius: 25px !important;
-  color: var(--user-text-color);
+  background: var(--primary) !important;
+  color: white !important;
   font-family: "Bree Serif", serif !important;
-
-  width: 240px !important;
 }
-span .material-symbols-rounded {
-  color: var(--user-text-color) !important;
+.double-width-icon {
+  width: 240px !important;
 }
 
 /* Collections Modal Styles */
@@ -208,7 +207,7 @@ span .material-symbols-rounded {
 
 .modal-content h3 {
   margin: 0 0 1.5rem;
-  color: var(--user-text-color);
+  color: var(--foreground);
 }
 
 .collections-list {
@@ -225,10 +224,10 @@ span .material-symbols-rounded {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  color: var(--user-background-color);
+  background: var(--surface);
   border: none;
   border-radius: 12px;
-  background: var(--user-text-color);
+  color: var(--foreground);
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
@@ -236,8 +235,8 @@ span .material-symbols-rounded {
 }
 
 .collection-item:hover {
-  background: var(--user-background-color);
-  color: var(--user-text-color);
+  background: var(--primary);
+  color: white;
   transform: translateX(4px);
 }
 
@@ -247,8 +246,8 @@ span .material-symbols-rounded {
   margin-bottom: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: var(--user-background-color);
-  color: var(--user-text-color);
+  background: var(--surface);
+  color: var(--foreground);
   font-size: 1rem;
 }
 
@@ -264,10 +263,10 @@ span .material-symbols-rounded {
   left: 50%;
   transform: translateX(-50%);
   padding: 1rem 2rem;
-  background: var(--user-background-color);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   border-radius: 12px;
-  color: var(--user-text-color);
+  color: var(--foreground);
   z-index: 1000;
   animation: slideUp 0.3s ease-out;
 }
@@ -304,7 +303,7 @@ span .material-symbols-rounded {
 }
 
 .collections-list::-webkit-scrollbar-track {
-  background: var(--user-background-color);
+  background: var(--surface);
   border-radius: 4px;
 }
 

@@ -16,7 +16,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: var(--user-background-color);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   z-index: 100;
   animation: slideDown 0.3s ease-out;
@@ -138,8 +138,7 @@ body {
 }
 
 .word-card {
-  background: var(--user-text-color);
-  color: var(--user-background-color);
+  background: var(--surface);
   padding: 1rem;
   border-radius: 12px;
   display: flex;
@@ -163,8 +162,7 @@ body {
 }
 
 .collection-card {
-  background: var(--user-text-color);
-  color: var(--user-background-color);
+  background: var(--surface);
   padding: 1rem;
   border-radius: 12px;
   text-align: center;
@@ -191,22 +189,20 @@ body {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--user-text-color);
+  background: var(--surface);
   border: none;
   border-radius: 12px;
-  color: var(--user-background-color);
+  color: var(--foreground);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .setting-item:hover {
-  color: var(--user-text-color);
-  background: var(--user-background-color);
+  background: var(--primary);
+  color: white;
   transform: translateX(4px);
 }
-button .material-symbols-rounded {
-  color: var(--user-background-color);
-}
+
 /* Modals */
 .modal {
   position: fixed;
@@ -303,7 +299,7 @@ html {
   background: linear-gradient(
     90deg,
     transparent,
-    var(--surface),
+    var(--surface-alpha),
     transparent
   );
   animation: loading 1.5s infinite;
@@ -360,7 +356,7 @@ html {
   gap: 0.5rem;
   padding: 1rem;
   border-radius: var(--user-corner-radius);
-  background: var(--surface);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transform: translateX(150%);

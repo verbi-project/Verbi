@@ -26,23 +26,23 @@
   --primary-light: #2563eb;
   --accent-light: #7c3aed;
   --background-light: #f8fafc;
-  --user-text-color-light: #1e293b;
-  --user-background-color-light: #ffffff;
-  --user-background-color-light: rgba(255, 255, 255, 0.8);
+  --foreground-light: #1e293b;
+  --surface-light: #ffffff;
+  --surface-alpha-light: rgba(255, 255, 255, 0.8);
 
   /* Dark mode colors */
   --primary-dark: #60a5fa;
   --accent-dark: #a78bfa;
   --background-dark: #0f172a;
-  --user-text-color-dark: #e2e8f0;
-  --user-background-color-dark: #1e293b;
-  --user-background-color-dark: rgba(30, 41, 59, 0.8);
+  --foreground-dark: #e2e8f0;
+  --surface-dark: #1e293b;
+  --surface-alpha-dark: rgba(30, 41, 59, 0.8);
 
   /* User Preferences - Default Values */
   --user-corner-radius: var(--corner-radius-modern);
-  --user-font-family: var(--font-serif);
+  --user-font-family: var(--font-sans);
   --user-font-size: var(--text-base);
-  --user-text-color: var(--user-text-color-light);
+  --user-text-color: var(--foreground-light);
   --user-background-color: #ffffff;
   --user-opacity: 0.75;
 
@@ -50,9 +50,9 @@
   --primary: var(--primary-light);
   --accent: var(--accent-light);
   --background: var(--background-light);
-  --user-text-color: var(--user-text-color-light);
-  --user-background-color: var(--user-background-color-light);
-  --user-background-color: var(--user-background-color-light);
+  --foreground: var(--foreground-light);
+  --surface: var(--surface-light);
+  --surface-alpha: var(--surface-alpha-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -60,9 +60,9 @@
     --primary: var(--primary-dark);
     --accent: var(--accent-dark);
     --background: var(--background-dark);
-    --user-text-color: var(--user-text-color-dark);
-    --user-background-color: var(--user-background-color-dark);
-    --user-background-color: var(--user-background-color-dark);
+    --foreground: var(--foreground-dark);
+    --surface: var(--surface-dark);
+    --surface-alpha: var(--surface-alpha-dark);
   }
 }
 
@@ -98,7 +98,7 @@ select {
 }
 
 .glass-morphism {
-  background: var(--user-background-color);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   border-radius: var(--user-corner-radius);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -125,13 +125,20 @@ hr {
   font-style: normal;
   letter-spacing: normal;
   text-transform: none;
+  color: var(--icon-color);
+}
+
+/* Font Awesome Icons */
+.fas, .fab, .far {
+  color: var(--icon-color);
+  transition: color 0.3s ease;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
   -webkit-font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
   padding: 8px;
-  color: var(--user-text-color);
+  color: var(--foreground);
   transition: all 0.2s ease;
 }
 
@@ -147,7 +154,7 @@ hr {
 
 /* Typography */
 .subtitle {
-  color: var(--user-text-color);
+  color: var(--foreground);
   opacity: 0.7;
   font-size: calc(var(--user-font-size) * 0.9);
   line-height: 1.4;
@@ -180,7 +187,7 @@ hr {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: var(--user-background-color);
+  background: var(--surface-alpha);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -210,8 +217,8 @@ hr {
   padding: 0.5rem 1rem;
   border-radius: 8px;
   border: none;
-  background: var(--user-text-color);
-  color: var(--user-background-color);
+  background: var(--primary);
+  color: white;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -223,18 +230,18 @@ hr {
 }
 
 .btn-secondary {
-  background: var(--user-text-color);
+  background: var(--accent);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--user-text-color);
-  border: 1px solid var(--user-background-color);
+  color: var(--primary);
+  border: 1px solid var(--primary);
 }
 
 /* Card Components */
 .card {
-  background: var(--user-background-color);
+  background: var(--surface);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -243,11 +250,11 @@ hr {
 
 /* Input Fields */
 .input {
-  background: var(--user-background-color);
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  color: var(--user-text-color);
+  color: var(--foreground);
   font-size: 1rem;
   transition: all 0.2s ease;
 }
@@ -266,8 +273,8 @@ hr {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--user-background-color);
-  color: var(--user-text-color);
+  background: var(--surface);
+  color: var(--foreground);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -294,7 +301,7 @@ hr {
 }
 
 .corner-example {
-  background: var(--user-background-color);
+  background: var(--surface);
   padding: 1rem;
   text-align: center;
   font-size: 0.8rem;
