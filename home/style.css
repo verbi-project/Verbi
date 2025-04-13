@@ -115,7 +115,7 @@ body {
   justify-content: center;
   align-items: center;
   background: var(--surface);
-  color: var(--foreground);
+  color: var(--accent);
   cursor: pointer;
   transition: all 0.2s ease;
 }
