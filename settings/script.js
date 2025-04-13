@@ -1,6 +1,7 @@
 // UI Settings Management
 import { getUserProfile, setData } from "/Global/firebase.js";
 
+
 // Get DOM elements
 const cornerRadiusSelect = document.getElementById('cornerRadius');
 const fontFamilySelect = document.getElementById('fontFamily');
@@ -45,6 +46,7 @@ colorPresets.forEach(preset => {
             backgroundColorInput.value = color;
         }
         
+
     });
 });
 
@@ -213,7 +215,7 @@ saveUISettingsButton.addEventListener('click', async () => {
 
         await setData("profile.json", userId, JSON.stringify(profile));
       console.log("e")
-        playSound('success');
+
     } catch (error) {
         console.error('Error saving UI settings:', error);
     }
