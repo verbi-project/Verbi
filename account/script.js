@@ -81,11 +81,13 @@ uploadButton.addEventListener('click', async () => {
                 const userProfileData = JSON.parse(userProfileString);
                 if (userProfileData.customBackgroundURL) {
                     try {
-                        // Extract the path from the full URL
-                        const oldUrl = new URL(userProfileData.customBackgroundURL);
-                        const oldPath = decodeURIComponent(oldUrl.pathname.split('/o/')[1].split('?')[0]);
-                        const oldRef = firebase.storage().ref(oldPath);
-                        await oldRef.delete();
+                        // Get reference to the old background directly
+                        const storage = firebase.storage();
+                        // The URL contains a token, so we need to list the files to find the old one
+                        const oldStorageRef = storage.ref(`backgrounds/${userId}`);
+                        const files = await oldStorageRef.listAll();
+                        // Delete all existing files in the user's background folder
+                        await Promise.all(files.items.map(file => file.delete()));
                         console.log("Deleted old background");
                     } catch (error) {
                         console.warn("Error deleting old background:", error);
