@@ -74,9 +74,28 @@
 uploadButton.addEventListener('click', async () => {
     const file = backgroundUpload.files[0];
     if (file) {
-        const storageRef = firebase.storage().ref(`backgrounds/<span class="math-inline">\{userId\}/</span>{file.name}`);
-
         try {
+            // First, get the current background URL and delete it if it exists
+            const userProfileString = localStorage.getItem("USER_PROFILE");
+            if (userProfileString) {
+                const userProfileData = JSON.parse(userProfileString);
+                if (userProfileData.customBackgroundURL) {
+                    try {
+                        // Extract the path from the full URL
+                        const oldUrl = new URL(userProfileData.customBackgroundURL);
+                        const oldPath = decodeURIComponent(oldUrl.pathname.split('/o/')[1].split('?')[0]);
+                        const oldRef = firebase.storage().ref(oldPath);
+                        await oldRef.delete();
+                        console.log("Deleted old background");
+                    } catch (error) {
+                        console.warn("Error deleting old background:", error);
+                        // Continue even if delete fails
+                    }
+                }
+            }
+
+            // Upload the new file
+            const storageRef = firebase.storage().ref(`backgrounds/${userId}/${file.name}`);
             await storageRef.put(file);
             const downloadURL = await storageRef.getDownloadURL();
 
