@@ -151,6 +151,9 @@
             <option value="--font-heading">Playfair Display</option>
             <option value="--font-reading">Merriweather</option>
             <option value="--font-code">Fira Code</option>
+            <option value="--font-elegant">Cormorant Garamond</option>
+            <option value="--font-casual">Quicksand</option>
+            <option value="--font-handwriting">Dancing Script</option>
           </select>
           <div class="font-preview" id="fontPreview">
             The quick brown fox jumps over the lazy dog
@@ -171,7 +174,18 @@
         </div>
         <div class="settings-group">
           <label>Background Color</label>
-          <input type="color" id="backgroundColor" class="input" value="#ffffff">
+          <div class="color-presets">
+            <button class="color-preset" data-color="var(--bg-color-light)" style="background-color: var(--bg-color-light);" title="Light"></button>
+            <button class="color-preset" data-color="var(--bg-color-cream)" style="background-color: var(--bg-color-cream);" title="Cream"></button>
+            <button class="color-preset" data-color="var(--bg-color-sage)" style="background-color: var(--bg-color-sage);" title="Sage"></button>
+            <button class="color-preset" data-color="var(--bg-color-sky)" style="background-color: var(--bg-color-sky);" title="Sky"></button>
+            <button class="color-preset" data-color="var(--bg-color-lavender)" style="background-color: var(--bg-color-lavender);" title="Lavender"></button>
+            <button class="color-preset" data-color="var(--bg-color-rose)" style="background-color: var(--bg-color-rose);" title="Rose"></button>
+          </div>
+          <div class="custom-color">
+            <label>Custom Color</label>
+            <input type="color" id="backgroundColor" class="input" value="#ffffff">
+          </div>
         </div>
         <div class="settings-group">
           <label>UI Transparency</label>
@@ -201,12 +215,14 @@
 
 
 
-    <script src="/Global/firebase.js" type="module"></script>
-    <script src="/account/script.js" type="module"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App scripts -->
+    <script src="/Global/firebase.js" type="module"></script>
+    <script src="/Global/ui-settings.js" type="module"></script>
+    <script src="/account/script.js" type="module"></script>
 
    
     <!-- Toast Notifications -->
