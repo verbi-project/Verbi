@@ -126,12 +126,51 @@ document.querySelectorAll('.corner-example').forEach(example => {
     });
 });
 
+// Color preset handling
+const colorPresets = document.querySelectorAll('.color-preset');
+const backgroundColorInput = document.getElementById('backgroundColor');
+
+colorPresets.forEach(preset => {
+    preset.addEventListener('click', () => {
+        const color = preset.dataset.color;
+        document.documentElement.style.setProperty('--user-background-color', color);
+        
+        // Update active state
+        colorPresets.forEach(p => p.classList.remove('active'));
+        preset.classList.add('active');
+        
+        // If it's a CSS variable, get its computed value for the color picker
+        const computedColor = getComputedStyle(document.documentElement)
+            .getPropertyValue(color.replace('var(', '').replace(')', ''))
+            .trim();
+        backgroundColorInput.value = convertRGBToHex(computedColor);
+        
+        playSound('click');
+    });
+});
+
+// Helper function to convert RGB to Hex
+function convertRGBToHex(rgb) {
+    // Handle both rgb(r,g,b) and #hex formats
+    if (rgb.startsWith('#')) return rgb;
+    const rgbArr = rgb.match(/\d+/g);
+    if (!rgbArr) return '#ffffff';
+    const [r, g, b] = rgbArr;
+    return '#' + ((1 << 24) + (+r << 16) + (+g << 8) + +b).toString(16).slice(1);
+}
+
 // Live preview opacity changes
 const opacityInput = document.getElementById('uiOpacity');
 const opacityValue = document.getElementById('opacityValue');
 opacityInput.addEventListener('input', () => {
     opacityValue.textContent = opacityInput.value + '%';
     document.documentElement.style.setProperty('--user-opacity', opacityInput.value / 100);
+});
+
+// Custom color input handling
+backgroundColorInput.addEventListener('input', () => {
+    document.documentElement.style.setProperty('--user-background-color', backgroundColorInput.value);
+    colorPresets.forEach(p => p.classList.remove('active'));
 });
 
 // Save UI settings
@@ -206,7 +245,26 @@ async function loadUISettings() {
             }
             if (settings.backgroundColor) {
                 document.documentElement.style.setProperty('--user-background-color', settings.backgroundColor);
-                document.getElementById('backgroundColor').value = settings.backgroundColor;
+                
+                // Handle both preset and custom colors
+                if (settings.backgroundColor.startsWith('var(--bg-color-')) {
+                    // It's a preset color
+                    const activePreset = document.querySelector(`[data-color="${settings.backgroundColor}"]`);
+                    if (activePreset) {
+                        colorPresets.forEach(p => p.classList.remove('active'));
+                        activePreset.classList.add('active');
+                        
+                        // Update color picker with computed value
+                        const computedColor = getComputedStyle(document.documentElement)
+                            .getPropertyValue(settings.backgroundColor.replace('var(', '').replace(')', ''))
+                            .trim();
+                        backgroundColorInput.value = convertRGBToHex(computedColor);
+                    }
+                } else {
+                    // It's a custom color
+                    backgroundColorInput.value = settings.backgroundColor;
+                    colorPresets.forEach(p => p.classList.remove('active'));
+                }
             }
             if (settings.uiOpacity !== undefined) {
                 document.documentElement.style.setProperty('--user-opacity', settings.uiOpacity);
