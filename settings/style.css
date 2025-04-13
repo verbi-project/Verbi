@@ -1,0 +1,171 @@
+/* Settings Page Styles */
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--surface-alpha);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--user-corner-radius);
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: var(--surface);
+}
+
+.settings-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-section {
+  width: 100%;
+}
+
+.settings-section h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--foreground);
+}
+
+.settings-group {
+  margin-bottom: 1.5rem;
+}
+
+.settings-group:last-child {
+  margin-bottom: 0;
+}
+
+.settings-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--user-corner-radius);
+  color: var(--foreground);
+  transition: all 0.2s ease;
+}
+
+select.input {
+  cursor: pointer;
+}
+
+.font-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: var(--user-corner-radius);
+  font-family: var(--user-font-family);
+  font-size: var(--user-font-size);
+  color: var(--user-text-color);
+}
+
+/* Color Presets */
+.color-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.color-preset {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--user-corner-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.color-preset:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.color-preset.active {
+  border: 2px solid var(--primary);
+}
+
+.custom-color {
+  margin-top: 1rem;
+}
+
+.custom-color label {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+/* Opacity Control */
+.opacity-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+input[type="range"] {
+  flex: 1;
+}
+
+#opacityValue {
+  min-width: 4ch;
+}
+
+/* Save Button */
+.save-button {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--user-corner-radius);
+  cursor: pointer;
+  font-size: var(--user-font-size);
+  transition: all 0.2s ease;
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .input {
+    background: var(--surface-dark);
+  }
+  
+  .font-preview {
+    background: var(--surface-dark);
+  }
+}
