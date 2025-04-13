@@ -81,17 +81,27 @@ uploadButton.addEventListener('click', async () => {
                 const userProfileData = JSON.parse(userProfileString);
                 if (userProfileData.customBackgroundURL) {
                     try {
-                        // Get reference to the old background directly
+                        // Delete existing background
                         const storage = firebase.storage();
-                        // The URL contains a token, so we need to list the files to find the old one
                         const oldStorageRef = storage.ref(`backgrounds/${userId}`);
                         const files = await oldStorageRef.listAll();
-                        // Delete all existing files in the user's background folder
-                        await Promise.all(files.items.map(file => file.delete()));
-                        console.log("Deleted old background");
+                        
+                        if (files.items.length > 0) {
+                            console.log(`Found ${files.items.length} existing background(s) to delete`);
+                            // Delete files one by one and make sure each deletion completes
+                            for (const file of files.items) {
+                                try {
+                                    await file.delete();
+                                    console.log(`Successfully deleted: ${file.fullPath}`);
+                                } catch (deleteError) {
+                                    console.error(`Error deleting file ${file.fullPath}:`, deleteError);
+                                    throw deleteError; // Stop the process if deletion fails
+                                }
+                            }
+                        }
                     } catch (error) {
-                        console.warn("Error deleting old background:", error);
-                        // Continue even if delete fails
+                        console.error("Error during background cleanup:", error);
+                        throw error; // Prevent upload if cleanup fails
                     }
                 }
             }
@@ -126,8 +136,13 @@ uploadButton.addEventListener('click', async () => {
             playSound('success');
 
         } catch (error) {
-            console.error("Error uploading background:", error);
-            alert("Failed to upload background. Please try again.");
+            console.error("Background update failed:", error);
+            if (error.code && error.code.startsWith('storage/')) {
+                // Firebase Storage specific errors
+                alert(`Storage error: ${error.message}`);
+            } else {
+                alert("Failed to update background. Please try again.");
+            }
         }
     }
 });
