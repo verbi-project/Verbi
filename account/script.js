@@ -9,28 +9,38 @@
             setUserCollections,
             initializeUserData, firebaseConfig
         } from "/Global/firebase.js";
-        const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
-        document.addEventListener('DOMContentLoaded', function() {
-          const profileNameElement = document.querySelector('.profile-name');
-          const userProfileString = localStorage.getItem("USER_PROFILE");
+        // Get userId from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+var  userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+        
+        if (!userId) {
+            console.error("No user ID provided");
+            window.location.href = '/auth'; // Redirect to auth if no userId
+        }
 
-          if (userProfileString) {
-            try {
-              const userProfile = JSON.parse(userProfileString);
-              if (userProfile && userProfile.username) {
-                profileNameElement.textContent = userProfile.username;
-              } else {
-                console.warn("Username not found in USER_PROFILE.");
-                profileNameElement.textContent = "User"; // Or some other default
-              }
-            } catch (error) {
-              console.error("Error parsing USER_PROFILE from localStorage:", error);
-              profileNameElement.textContent = "User"; // Or some other default
-            }
-          } else {
-            console.warn("USER_PROFILE not found in localStorage.");
-            profileNameElement.textContent = "User"; // Or some other default
-          }
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileNameElement = document.querySelector('.profile-name');
+            
+            // Get profile directly from Firebase
+            getUserProfile(userId, (profileData) => {
+                if (profileData) {
+                    try {
+                        const userProfile = JSON.parse(profileData);
+                        if (userProfile && userProfile.username) {
+                            profileNameElement.textContent = userProfile.username;
+                        } else {
+                            console.warn("Username not found in profile");
+                            profileNameElement.textContent = "User";
+                        }
+                    } catch (error) {
+                        console.error("Error parsing profile data:", error);
+                        profileNameElement.textContent = "User";
+                    }
+                } else {
+                    console.warn("No profile data found for user");
+                    profileNameElement.textContent = "User";
+                }
+            });
         });
         // Sound effects management
         const sounds = {
@@ -65,48 +75,76 @@
         const uploadButton = document.getElementById('uploadBackground');
 
         function loadSavedBackground() {
-            const savedBackground = localStorage.getItem('customBackground');
-            if (savedBackground) {
-                backgroundImage.src = savedBackground;
+            getUserProfile(userId, (profileData) => {
+                if (profileData) {
+                    const profile = JSON.parse(profileData);
+                    if (profile.customBackgroundURL) {
+                        backgroundImage.src = profile.customBackgroundURL;
+                    }
+                }
+            });
+        }
+
+        async function deleteExistingBackgrounds() {
+            const storage = firebase.storage();
+            const oldStorageRef = storage.ref(`backgrounds/${userId}`);
+            const files = await oldStorageRef.listAll();
+            
+            if (files.items.length > 0) {
+                console.log(`Found ${files.items.length} existing background(s) to delete`);
+                for (const file of files.items) {
+                    try {
+                        await file.delete();
+                        console.log(`Successfully deleted: ${file.fullPath}`);
+                    } catch (deleteError) {
+                        console.error(`Error deleting file ${file.fullPath}:`, deleteError);
+                        throw deleteError;
+                    }
+                }
             }
         }
 
 uploadButton.addEventListener('click', async () => {
     const file = backgroundUpload.files[0];
     if (file) {
-        const storageRef = firebase.storage().ref(`backgrounds/<span class="math-inline">\{userId\}/</span>{file.name}`);
-
         try {
+            // Delete any existing background files
+            await deleteExistingBackgrounds();
+
+            // Upload the new file
+            const storageRef = firebase.storage().ref(`backgrounds/${userId}/${file.name}`);
             await storageRef.put(file);
             const downloadURL = await storageRef.getDownloadURL();
 
             console.log("Download URL:", downloadURL);
-
             backgroundImage.src = downloadURL;
-            localStorage.setItem('customBackground', downloadURL);
 
-            // Update user profile in Firebase Storage
-            const userProfileString = localStorage.getItem("USER_PROFILE");
-            if (userProfileString) {
-                try {
-                    const userProfileData = JSON.parse(userProfileString);
-                    userProfileData.customBackgroundURL = downloadURL;
-                    setUserProfile(userId, JSON.stringify(userProfileData));
-                } catch (error) {
-                    console.error("Error parsing or updating USER_PROFILE:", error);
-                }
-            } else {
-                console.warn("USER_PROFILE not found in localStorage.");
-                // Handle the case where USER_PROFILE is missing
-            }
-
+            // Update profile in Firebase
+            await new Promise((resolve, reject) => {
+                getUserProfile(userId, async (profileData) => {
+                    try {
+                        const profile = profileData ? JSON.parse(profileData) : {};
+                        profile.customBackgroundURL = downloadURL;
+                        await setUserProfile(userId, JSON.stringify(profile));
+                        resolve();
+                    } catch (error) {
+                        console.error("Error updating profile:", error);
+                        reject(error);
+                    }
+                });
+            });
 
             backgroundModal.classList.remove('active');
             playSound('success');
 
         } catch (error) {
-            console.error("Error uploading background:", error);
-            alert("Failed to upload background. Please try again.");
+            console.error("Background update failed:", error);
+            if (error.code && error.code.startsWith('storage/')) {
+                // Firebase Storage specific errors
+                alert(`Storage error: ${error.message}`);
+            } else {
+                alert("Failed to update background. Please try again.");
+            }
         }
     }
 });
