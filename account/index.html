@@ -31,7 +31,6 @@
    
  <script src="/Global/firebase.js" type="module"></script>
     <script src="/account/script.js" type="module"></script>
-    <img id="backgroundImage" src="." alt="Custom background" />
     
     <div class="top-bar">
       <button class="back-button">
@@ -96,11 +95,11 @@
           Settings
         </h2>
         <div class="settings-list">
-          <button class="setting-item" id="customizeBackground">
+          <a href="/settings#background" class="setting-item">
             <span class="material-symbols-rounded">wallpaper</span>
-            <span>Customize Background</span>
+            <span>Background & Theme</span>
             <span class="material-symbols-rounded">arrow_forward_ios</span>
-          </button>
+          </a>
           <button class="setting-item" id="notifications">
             <span class="material-symbols-rounded">notifications</span>
             <span>Notification Settings</span>
@@ -121,14 +120,6 @@
     </main>
 
     <!-- Modals -->
-    <div class="modal" id="backgroundModal">
-      <div class="modal-content glass-morphism">
-        <h3>Choose Background</h3>
-        <input type="file" id="backgroundUpload" accept="image/*" />
-        <button class="btn" id="uploadBackground">Upload</button>
-      </div>
-    </div>
-
     <div class="modal" id="collectionModal">
       <div class="modal-content glass-morphism">
         <h3>Create Collection</h3>
