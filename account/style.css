@@ -223,8 +223,7 @@ body {
 }
 
 .modal-content {
-  width: 90%;
-  max-width: 500px;
+  width: min(90%, 400px);
   padding: 2rem;
 }
 
@@ -313,4 +312,29 @@ html {
   100% {
     transform: translateX(100%);
   }
+}
+
+.settings-group {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-group label {
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.settings-group .input {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+}
+
+.settings-group input[type="color"] {
+  height: 40px;
+  padding: 0.25rem;
 }
