@@ -350,89 +350,10 @@ loadUISettings();
             playSound('click');
         });
 
-        // Background image management
-        const backgroundImage = document.getElementById('backgroundImage');
-        const backgroundModal = document.getElementById('backgroundModal');
-        const backgroundUpload = document.getElementById('backgroundUpload');
-        const uploadButton = document.getElementById('uploadBackground');
-
-        function loadSavedBackground() {
-            getUserProfile(userId, (profileData) => {
-                if (profileData) {
-                    const profile = JSON.parse(profileData);
-                    if (profile.customBackgroundURL) {
-                        backgroundImage.src = profile.customBackgroundURL;
-                    }
-                }
-            });
-        }
-
-        async function deleteExistingBackgrounds() {
-            const storage = firebase.storage();
-            const oldStorageRef = storage.ref(`backgrounds/${userId}`);
-            const files = await oldStorageRef.listAll();
-            
-            if (files.items.length > 0) {
-                console.log(`Found ${files.items.length} existing background(s) to delete`);
-                for (const file of files.items) {
-                    try {
-                        await file.delete();
-                        console.log(`Successfully deleted: ${file.fullPath}`);
-                    } catch (deleteError) {
-                        console.error(`Error deleting file ${file.fullPath}:`, deleteError);
-                        throw deleteError;
-                    }
-                }
-            }
-        }
-
-uploadButton.addEventListener('click', async () => {
-    const file = backgroundUpload.files[0];
-    if (file) {
-        try {
-            // Delete any existing background files
-            await deleteExistingBackgrounds();
-
-            // Upload the new file
-            const storageRef = firebase.storage().ref(`backgrounds/${userId}/${file.name}`);
-            await storageRef.put(file);
-            const downloadURL = await storageRef.getDownloadURL();
-
-            console.log("Download URL:", downloadURL);
-            backgroundImage.src = downloadURL;
-
-            // Update profile in Firebase
-            await new Promise((resolve, reject) => {
-                getUserProfile(userId, async (profileData) => {
-                    try {
-                        const profile = profileData ? JSON.parse(profileData) : {};
-                        profile.customBackgroundURL = downloadURL;
-                        await setUserProfile(userId, JSON.stringify(profile));
-                        resolve();
-                    } catch (error) {
-                        console.error("Error updating profile:", error);
-                        reject(error);
-                    }
-                });
-            });
-
-            backgroundModal.classList.remove('active');
-            playSound('success');
-
-        } catch (error) {
-            console.error("Background update failed:", error);
-            if (error.code && error.code.startsWith('storage/')) {
-                // Firebase Storage specific errors
-                alert(`Storage error: ${error.message}`);
-            } else {
-                alert("Failed to update background. Please try again.");
-            }
-        }
-    }
-});
-
-        document.getElementById('customizeBackground').addEventListener('click', () => {
-            backgroundModal.classList.add('active');
+        // Theme toggle listener
+        themeToggle.addEventListener('click', () => {
+            darkMode = !darkMode;
+            document.documentElement.classList.toggle('dark-mode', darkMode);
             playSound('click');
         });
 

@@ -222,3 +222,90 @@ saveUISettingsButton.addEventListener('click', async () => {
 
 // Initialize settings on page load
 loadUISettings();
+
+// Background Image Management
+const backgroundPreview = document.getElementById('backgroundPreview');
+const backgroundUpload = document.getElementById('backgroundUpload');
+const currentBackground = document.getElementById('currentBackground');
+const removeBackground = document.getElementById('removeBackground');
+
+// Load existing background
+async function loadBackground() {
+    const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+    if (!userId) return;
+
+    try {
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        if (profileData) {
+            const profile = JSON.parse(profileData);
+            if (profile.backgroundImage) {
+                currentBackground.src = profile.backgroundImage;
+                document.body.style.backgroundImage = `url(${profile.backgroundImage})`;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading background:', error);
+    }
+}
+
+// Handle background upload
+backgroundPreview.addEventListener('click', () => {
+    backgroundUpload.click();
+});
+
+backgroundUpload.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+    if (!userId) return;
+
+    try {
+        // Convert image to base64
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const base64Image = e.target.result;
+            
+            // Update preview and background
+            currentBackground.src = base64Image;
+            document.body.style.backgroundImage = `url(${base64Image})`;
+
+            // Save to profile
+            const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+            const profile = profileData ? JSON.parse(profileData) : {};
+            profile.backgroundImage = base64Image;
+            await setData("profile.json", userId, JSON.stringify(profile));
+            
+            playSound('success');
+        };
+        reader.readAsDataURL(file);
+    } catch (error) {
+        console.error('Error uploading background:', error);
+    }
+});
+
+// Handle background removal
+removeBackground.addEventListener('click', async () => {
+    const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+    if (!userId) return;
+
+    try {
+        // Remove background
+        currentBackground.src = '.';
+        document.body.style.backgroundImage = 'none';
+
+        // Update profile
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        const profile = profileData ? JSON.parse(profileData) : {};
+        delete profile.backgroundImage;
+        await setData("profile.json", userId, JSON.stringify(profile));
+        
+        playSound('success');
+    } catch (error) {
+        console.error('Error removing background:', error);
+    }
+});
+
+// Initialize everything when DOM loads
+loadUISettings();
+loadBackground();

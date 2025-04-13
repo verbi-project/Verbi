@@ -107,6 +107,25 @@
             </div>
         </section>
 
+        <section class="settings-section glass-morphism">
+            <h2>Background Image</h2>
+            <div class="settings-group">
+                <label>Custom Background</label>
+                <div class="background-preview" id="backgroundPreview">
+                    <img src="." alt="Current background" id="currentBackground">
+                    <div class="background-upload">
+                        <span class="material-symbols-rounded">upload</span>
+                        <span>Drop image here or click to upload</span>
+                    </div>
+                </div>
+                <input type="file" id="backgroundUpload" accept="image/*" class="hidden" />
+                <button class="btn remove-bg-button" id="removeBackground">
+                    <span class="material-symbols-rounded">delete</span>
+                    Remove Background
+                </button>
+            </div>
+        </section>
+
         <button class="save-button btn" id="saveUISettings">Save Changes</button>
     </main>
 
