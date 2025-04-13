@@ -1,4 +1,4 @@
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyCDQ7Oy1_2yFJlK1Ue4Jbvb1OygLzoJyy8",
   authDomain: "verbi-dabf2.firebaseapp.com",
   projectId: "verbi-dabf2",
@@ -44,7 +44,7 @@ export function setGlobalData(fileName, data) {
     .child(fileName)
     .putString(data)
     .then((snapshot) => {
-      console.log("Uploaded a raw string!");
+      console.log("Uploaded a raw string!" + JSON.stringify(data));
     });
 }
 export function getData(fileName, userCode, func = () => {}) {
@@ -85,6 +85,11 @@ export function getData(fileName, userCode, func = () => {}) {
       // Handle common Firebase Storage errors
       if (error.code === 'storage/object-not-found') {
         console.log('First time user, initializing empty data');
+        console.log(localStorage.getItem("USER_PROFILE"))
+          setData("profile.json", userCode, JSON.stringify(localStorage.getItem("USER_PROFILE"))); // <-- Set in /auth page
+       setData("wordList.json", userCode, JSON.stringify([]));
+       setData("collections.json", userCode, JSON.stringify([]));
+        
       } else {
         console.error('Firebase Storage error:', error);
       }
@@ -97,7 +102,7 @@ export function setData(fileName, userCode, data) {
     .child(fileName)
     .putString(data)
     .then((snapshot) => {
-      console.log("Uploaded a raw string!");
+      console.log("Uploaded a raw string!" + JSON.stringify(data));
     });
 }
 
@@ -128,13 +133,18 @@ export function setUserProfile(userId, data) {
   setData("profile.json", userId, stringData);
 }
 
-export async function getUserProfile(userId) {
-  return await getData("profile.json", userId);
+export async function getUserProfile(userId, func = () => {}) {
+  return await getData("profile.json", userId, (data)=> {
+    func(data)
+  });
 }
 
 // Collection management
-export function setUserCollections(userId, collections) {
+export function setUserCollections(userId, collections, func = () => {}) {
+  console.log("fuhhaoiwhfqOWIAHoJQPW HIII")
   const stringData = typeof collections === 'string' ? collections : JSON.stringify(collections);
+    func(stringData)
+
   setData("collections.json", userId, stringData);
 }
 
@@ -152,7 +162,9 @@ export async function getUserCollections(userId, func = () => {}) {
 }
 
 // Initialize collections if they don't exist
-export async function initializeUserData(userId) {
+export async function initializeUserData() {
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+
   getUserWordList(userId, (data) => {
     if (!data) {
       setUserWordList(userId, JSON.stringify([]));

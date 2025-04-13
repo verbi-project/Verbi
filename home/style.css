@@ -2,7 +2,9 @@
 /* default to border-box */
 
 
-
+body {
+      align-items: center;
+}
 #content {
   position: relative;
   margin-top: 4rem;
