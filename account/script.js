@@ -11,12 +11,12 @@
         } from "/Global/firebase.js";
         // Get userId from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userId');
+const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+
         
         if (!userId) {
             console.error("No user ID provided");
             window.location.href = '/auth'; // Redirect to auth if no userId
-            return;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -70,36 +70,19 @@ const textColorInput = document.getElementById('textColor');
 const saveUISettingsButton = document.getElementById('saveUISettings');
 
 // Load saved UI settings from localStorage
-function loadUISettings() {
-    const settings = JSON.parse(localStorage.getItem('uiSettings') || '{}');
-    if (settings.cornerRadius) {
-        document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
-        cornerRadiusSelect.value = settings.cornerRadius;
-    }
-    if (settings.fontFamily) {
-        document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
-        fontFamilySelect.value = settings.fontFamily;
-    }
-    if (settings.fontSize) {
-        document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
-        fontSizeSelect.value = settings.fontSize;
-    }
-    if (settings.textColor) {
-        document.documentElement.style.setProperty('--user-text-color', settings.textColor);
-        textColorInput.value = settings.textColor;
-    }
-}
 
-// Show UI customization modal
+
+// active UI customization modal
 customizeUIButton.addEventListener('click', () => {
-    uiCustomizationModal.classList.add('show');
+    uiCustomizationModal.classList.add('active');
     playSound('pop');
 });
 
 // Close modal when clicking outside
 uiCustomizationModal.addEventListener('click', (e) => {
     if (e.target === uiCustomizationModal) {
-        uiCustomizationModal.classList.remove('show');
+        uiCustomizationModal.classList.remove('active');
+
         playSound('pop');
     }
 });
@@ -234,26 +217,45 @@ saveUISettingsButton.addEventListener('click', async () => {
         profile.uiSettings = settings;
         await setUserProfile(userId, JSON.stringify(profile));
         
-        // Close modal and show success message
-        uiCustomizationModal.classList.remove('show');
+        // Close modal and active success message
+        uiCustomizationModal.classList.remove('active');
         playSound('success');
         
         const successToast = document.getElementById('successToast');
-        successToast.classList.add('show');
-        setTimeout(() => successToast.classList.remove('show'), 3000);
+        successToast.classList.add('active');
+        setTimeout(() => successToast.classList.remove('active'), 3000);
     } catch (error) {
         console.error('Error saving UI settings:', error);
         
-        // Show error message
+        // active error message
         const errorToast = document.getElementById('errorToast');
-        errorToast.classList.add('show');
-        setTimeout(() => errorToast.classList.remove('show'), 3000);
+        errorToast.classList.add('active');
+        setTimeout(() => errorToast.classList.remove('active'), 3000);
+
         playSound('error');
     }
 });
 
 // Load settings from Firebase profile
 async function loadUISettings() {
+    const settings = JSON.parse(localStorage.getItem('uiSettings') || '{}');
+    if (settings.cornerRadius) {
+        document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+        cornerRadiusSelect.value = settings.cornerRadius;
+    }
+    if (settings.fontFamily) {
+        document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+        fontFamilySelect.value = settings.fontFamily;
+    }
+    if (settings.fontSize) {
+        document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+        fontSizeSelect.value = settings.fontSize;
+    }
+    if (settings.textColor) {
+        document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+        textColorInput.value = settings.textColor;
+    }
+
     try {
         const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
         if (profileData) {
