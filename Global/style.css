@@ -1,6 +1,24 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter&family=Noto+Emoji&family=Bree+Serif&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter&family=Noto+Emoji&family=Bree+Serif&family=JetBrains+Mono&display=swap");
 
 :root {
+  /* Theme Options */
+  --corner-radius-sharp: 0px;
+  --corner-radius-subtle: 4px;
+  --corner-radius-modern: 8px;
+  --corner-radius-smooth: 12px;
+  --corner-radius-bubble: 16px;
+  
+  /* Font Families */
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Bree Serif", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  /* Font Sizes */
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  
   /* Light mode colors */
   --primary-light: #2563eb;
   --accent-light: #7c3aed;
@@ -16,6 +34,12 @@
   --foreground-dark: #e2e8f0;
   --surface-dark: #1e293b;
   --surface-alpha-dark: rgba(30, 41, 59, 0.8);
+
+  /* User Preferences - Default Values */
+  --user-corner-radius: var(--corner-radius-modern);
+  --user-font-family: var(--font-sans);
+  --user-font-size: var(--text-base);
+  --user-text-color: var(--foreground-light);
 
   /* Default to light mode */
   --primary: var(--primary-light);
@@ -46,10 +70,10 @@
 }
 
 html {
-  font-family: "Bree Serif", serif;
-  font-size: 16px;
+  font-family: var(--user-font-family);
+  font-size: var(--user-font-size);
   background-color: var(--background);
-  color: var(--foreground);
+  color: var(--user-text-color);
 }
 
 body {
@@ -59,10 +83,19 @@ body {
   flex-direction: column;
 }
 
+/* Apply corner radius to common components */
+.btn,
+.glass-morphism,
+.setting-item,
+input,
+select {
+  border-radius: var(--user-corner-radius);
+}
+
 .glass-morphism {
   background: var(--surface-alpha);
   backdrop-filter: blur(12px);
-  border-radius: 16px;
+  border-radius: var(--user-corner-radius);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
 }
@@ -111,7 +144,7 @@ hr {
 .subtitle {
   color: var(--foreground);
   opacity: 0.7;
-  font-size: 0.9rem;
+  font-size: calc(var(--user-font-size) * 0.9);
   line-height: 1.4;
 }
 

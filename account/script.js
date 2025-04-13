@@ -60,6 +60,76 @@
         }
 
         // Theme management
+// UI Customization management
+const customizeUIButton = document.getElementById('customizeUI');
+const uiCustomizationModal = document.getElementById('uiCustomizationModal');
+const cornerRadiusSelect = document.getElementById('cornerRadius');
+const fontFamilySelect = document.getElementById('fontFamily');
+const fontSizeSelect = document.getElementById('fontSize');
+const textColorInput = document.getElementById('textColor');
+const saveUISettingsButton = document.getElementById('saveUISettings');
+
+// Load saved UI settings from localStorage
+function loadUISettings() {
+    const settings = JSON.parse(localStorage.getItem('uiSettings') || '{}');
+    if (settings.cornerRadius) {
+        document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+        cornerRadiusSelect.value = settings.cornerRadius;
+    }
+    if (settings.fontFamily) {
+        document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+        fontFamilySelect.value = settings.fontFamily;
+    }
+    if (settings.fontSize) {
+        document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+        fontSizeSelect.value = settings.fontSize;
+    }
+    if (settings.textColor) {
+        document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+        textColorInput.value = settings.textColor;
+    }
+}
+
+// Show UI customization modal
+customizeUIButton.addEventListener('click', () => {
+    uiCustomizationModal.classList.add('show');
+    playSound('pop');
+});
+
+// Close modal when clicking outside
+uiCustomizationModal.addEventListener('click', (e) => {
+    if (e.target === uiCustomizationModal) {
+        uiCustomizationModal.classList.remove('show');
+        playSound('pop');
+    }
+});
+
+// Save UI settings
+saveUISettingsButton.addEventListener('click', () => {
+    const settings = {
+        cornerRadius: cornerRadiusSelect.value,
+        fontFamily: fontFamilySelect.value,
+        fontSize: fontSizeSelect.value,
+        textColor: textColorInput.value
+    };
+    
+    // Apply settings
+    document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+    document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+    document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+    document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+    
+    // Save to localStorage
+    localStorage.setItem('uiSettings', JSON.stringify(settings));
+    
+    // Close modal and play sound
+    uiCustomizationModal.classList.remove('show');
+    playSound('success');
+});
+
+// Load settings on page load
+loadUISettings();
+
         const themeToggle = document.getElementById('themeToggle');
         let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 

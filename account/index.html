@@ -111,11 +111,53 @@
             <span>Sound Effects</span>
             <span class="material-symbols-rounded">arrow_forward_ios</span>
           </button>
+          <button class="setting-item" id="customizeUI">
+            <span class="material-symbols-rounded">palette</span>
+            <span>Customize UI</span>
+            <span class="material-symbols-rounded">arrow_forward_ios</span>
+          </button>
         </div>
       </section>
     </main>
 
     <!-- Modals -->
+    <div class="modal" id="uiCustomizationModal">
+      <div class="modal-content glass-morphism">
+        <h3>Customize UI</h3>
+        <div class="settings-group">
+          <label>Corner Style</label>
+          <select id="cornerRadius" class="input">
+            <option value="--corner-radius-sharp">Sharp</option>
+            <option value="--corner-radius-subtle">Subtle</option>
+            <option value="--corner-radius-modern" selected>Modern</option>
+            <option value="--corner-radius-smooth">Smooth</option>
+            <option value="--corner-radius-bubble">Bubble</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label>Font Family</label>
+          <select id="fontFamily" class="input">
+            <option value="--font-sans" selected>Inter (Sans-serif)</option>
+            <option value="--font-serif">Bree Serif</option>
+            <option value="--font-mono">JetBrains Mono</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label>Font Size</label>
+          <select id="fontSize" class="input">
+            <option value="--text-sm">Small</option>
+            <option value="--text-base" selected>Medium</option>
+            <option value="--text-lg">Large</option>
+            <option value="--text-xl">Extra Large</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label>Text Color</label>
+          <input type="color" id="textColor" class="input" value="#1e293b">
+        </div>
+        <button class="btn" id="saveUISettings">Save Changes</button>
+      </div>
+    </div>
     <div class="modal" id="backgroundModal">
       <div class="modal-content glass-morphism">
         <h3>Choose Background</h3>
