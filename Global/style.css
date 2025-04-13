@@ -40,7 +40,7 @@
 
   /* User Preferences - Default Values */
   --user-corner-radius: var(--corner-radius-modern);
-  --user-font-family: var(--font-serif);
+  --user-font-family: var(--font-sans);
   --user-font-size: var(--text-base);
   --user-text-color: var(--foreground-light);
   --user-background-color: #ffffff;
@@ -125,6 +125,13 @@ hr {
   font-style: normal;
   letter-spacing: normal;
   text-transform: none;
+  color: var(--icon-color);
+}
+
+/* Font Awesome Icons */
+.fas, .fab, .far {
+  color: var(--icon-color);
+  transition: color 0.3s ease;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;

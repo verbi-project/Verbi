@@ -24,7 +24,8 @@ export async function syncData(userId, userName) {
         fontSize: '--text-base',
         textColor: '#1e293b',
         backgroundColor: '#ffffff',
-        uiOpacity: 0.75,
+        accentColor: 'var(--accent-light)',
+        uiOpacity: 0.75
       }
     };
     if (data == null || undefined) {
@@ -41,4 +42,4 @@ export async function syncData(userId, userName) {
     });
     window.location.assign("/index.html");
   });
-}
+
