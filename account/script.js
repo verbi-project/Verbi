@@ -104,13 +104,45 @@ uiCustomizationModal.addEventListener('click', (e) => {
     }
 });
 
+// Live preview font changes
+fontFamilySelect.addEventListener('change', () => {
+    const fontPreview = document.getElementById('fontPreview');
+    fontPreview.style.fontFamily = `var(${fontFamilySelect.value})`;
+});
+
+// Corner radius example clicks
+document.querySelectorAll('.corner-example').forEach(example => {
+    example.addEventListener('click', () => {
+        const style = example.style.borderRadius;
+        const value = style === 'var(--corner-radius-sharp)' ? '--corner-radius-sharp' :
+                     style === 'var(--corner-radius-subtle)' ? '--corner-radius-subtle' :
+                     style === 'var(--corner-radius-modern)' ? '--corner-radius-modern' :
+                     style === 'var(--corner-radius-smooth)' ? '--corner-radius-smooth' :
+                     '--corner-radius-bubble';
+        
+        cornerRadiusSelect.value = value;
+        document.documentElement.style.setProperty('--user-corner-radius', `var(${value})`);
+        playSound('click');
+    });
+});
+
+// Live preview opacity changes
+const opacityInput = document.getElementById('uiOpacity');
+const opacityValue = document.getElementById('opacityValue');
+opacityInput.addEventListener('input', () => {
+    opacityValue.textContent = opacityInput.value + '%';
+    document.documentElement.style.setProperty('--user-opacity', opacityInput.value / 100);
+});
+
 // Save UI settings
-saveUISettingsButton.addEventListener('click', () => {
+saveUISettingsButton.addEventListener('click', async () => {
     const settings = {
         cornerRadius: cornerRadiusSelect.value,
         fontFamily: fontFamilySelect.value,
         fontSize: fontSizeSelect.value,
-        textColor: textColorInput.value
+        textColor: textColorInput.value,
+        backgroundColor: document.getElementById('backgroundColor').value,
+        uiOpacity: opacityInput.value / 100
     };
     
     // Apply settings
@@ -118,14 +150,74 @@ saveUISettingsButton.addEventListener('click', () => {
     document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
     document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
     document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+    document.documentElement.style.setProperty('--user-background-color', settings.backgroundColor);
+    document.documentElement.style.setProperty('--user-opacity', settings.uiOpacity);
     
-    // Save to localStorage
-    localStorage.setItem('uiSettings', JSON.stringify(settings));
-    
-    // Close modal and play sound
-    uiCustomizationModal.classList.remove('show');
-    playSound('success');
+    // Save to Firebase profile
+    try {
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        const profile = profileData ? JSON.parse(profileData) : {};
+        profile.uiSettings = settings;
+        await setUserProfile(userId, JSON.stringify(profile));
+        
+        // Close modal and show success message
+        uiCustomizationModal.classList.remove('show');
+        playSound('success');
+        
+        const successToast = document.getElementById('successToast');
+        successToast.classList.add('show');
+        setTimeout(() => successToast.classList.remove('show'), 3000);
+    } catch (error) {
+        console.error('Error saving UI settings:', error);
+        
+        // Show error message
+        const errorToast = document.getElementById('errorToast');
+        errorToast.classList.add('show');
+        setTimeout(() => errorToast.classList.remove('show'), 3000);
+        playSound('error');
+    }
 });
+
+// Load settings from Firebase profile
+async function loadUISettings() {
+    try {
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        if (profileData) {
+            const profile = JSON.parse(profileData);
+            const settings = profile.uiSettings || {};
+
+            // Apply settings if they exist
+            if (settings.cornerRadius) {
+                document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+                cornerRadiusSelect.value = settings.cornerRadius;
+            }
+            if (settings.fontFamily) {
+                document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+                fontFamilySelect.value = settings.fontFamily;
+                document.getElementById('fontPreview').style.fontFamily = `var(${settings.fontFamily})`;
+            }
+            if (settings.fontSize) {
+                document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+                fontSizeSelect.value = settings.fontSize;
+            }
+            if (settings.textColor) {
+                document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+                textColorInput.value = settings.textColor;
+            }
+            if (settings.backgroundColor) {
+                document.documentElement.style.setProperty('--user-background-color', settings.backgroundColor);
+                document.getElementById('backgroundColor').value = settings.backgroundColor;
+            }
+            if (settings.uiOpacity !== undefined) {
+                document.documentElement.style.setProperty('--user-opacity', settings.uiOpacity);
+                opacityInput.value = settings.uiOpacity * 100;
+                opacityValue.textContent = Math.round(settings.uiOpacity * 100) + '%';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading UI settings:', error);
+    }
+}
 
 // Load settings on page load
 loadUISettings();
