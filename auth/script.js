@@ -40,6 +40,6 @@ export async function syncData(userId, userName) {
     await getData("profile.json", userId, (data) => {
       userData = data;
     });
-    window.location.assign("/index.html");
+    window.location.assign("/home");
   });
 

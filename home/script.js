@@ -69,9 +69,9 @@ async function loadUserPreferences() {
                     if (profile && profile.customBackgroundURL) {
                         const backgroundImageElement = document.getElementById("backgroundImage");
                         if (backgroundImageElement) {
-                            backgroundImageElement.src = profile.customBackgroundURL;
+                            backgroundImageElement.src = profile.backgroundImage;
                             // Update localStorage to cache it for subsequent loads
-                            localStorage.setItem("customBackground", profile.customBackgroundURL);
+                            localStorage.setItem("customBackground", profile.backgroundImage);
                         }
                     } else {
                         // If not found in Firebase, check localStorage as a fallback
@@ -143,13 +143,7 @@ function setupEventListeners() {
         copyAndShowAlert();
     });
 
-    // Collection button
-    document
-        .getElementById("addToCollectionButton")
-        .addEventListener("click", () => {
-            showCollectionModal();
-            playSound("click");
-        });
+  
 }
 
 // Function to check if the URL has an "index" parameter
@@ -879,11 +873,7 @@ async function showCreateCollectionModal() {
 }
 
 // Add collection button to word buttons
-document.getElementById("wordButtons").innerHTML += `
-    <span class="material-symbols-rounded" id="addToCollectionButton">
-        collections_bookmark
-    </span>
-`;
+
 
 document
     .getElementById("addToCollectionButton")
