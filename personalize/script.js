@@ -1,7 +1,13 @@
 // UI Settings Management
 import { getUserProfile, setData } from "/Global/firebase.js";
 
+const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
 
+        
+        if (!userId) {
+            console.error("No user ID provided");
+            window.location.href = '/auth'; // Redirect to auth if no userId
+        }
 // Get DOM elements
 const cornerRadiusSelect = document.getElementById('cornerRadius');
 const fontFamilySelect = document.getElementById('fontFamily');
@@ -255,35 +261,56 @@ backgroundPreview.addEventListener('click', () => {
 });
 
 backgroundUpload.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
-    if (!userId) return;
+  const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+  if (!userId) return;
 
-    try {
-        // Convert image to base64
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const base64Image = e.target.result;
-            
-            // Update preview and background
-            currentBackground.src = base64Image;
-            document.body.style.backgroundImage = `url(${base64Image})`;
+  try {
+    // Convert image to base64
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64Image = e.target.result;
 
-            // Save to profile
-            const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
-            const profile = profileData ? JSON.parse(profileData) : {};
-            profile.backgroundImage = base64Image;
-            await setData("profile.json", userId, JSON.stringify(profile));
-            
-            playSound('success');
-        };
-        reader.readAsDataURL(file);
-    } catch (error) {
-        console.error('Error uploading background:', error);
-    }
+      // Update preview and background
+      currentBackground.src = base64Image;
+      document.body.style.backgroundImage = `url(${base64Image})`;
+
+      // Save to profile
+      try {
+        // Await the profile data and parse it immediately
+        let profileData = await getUserProfile(userId);
+        let profile;
+        try {
+          profile = JSON.parse(profileData);
+        } catch (parseError) {
+          console.error("Error parsing profileData:", parseError);
+          console.error("Raw profileData:", profileData); // Log the raw data
+          // Handle the error:  Set profile to a default object, or show error to user
+          profile = {}; // Or handle as appropriate for your application
+        }
+
+        // Check if profile is an object before adding properties.
+        if (typeof profile === 'object' && profile !== null) {
+          profile.backgroundImage = base64Image;
+          await setData("profile.json", userId, JSON.stringify(profile));
+          playSound('success');
+        } else {
+          console.error("Error: profileData is not an object:", profileData);
+          // Handle the error appropriately
+        }
+      } catch (error) {
+        console.error('Error saving/retrieving profile data:', error);
+        // Handle the error
+      }
+    };
+    reader.readAsDataURL(file);
+  } catch (error) {
+    console.error('Error uploading background:', error);
+  }
 });
+
 
 // Handle background removal
 removeBackground.addEventListener('click', async () => {
