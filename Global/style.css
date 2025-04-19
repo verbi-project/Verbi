@@ -28,7 +28,6 @@
   --background-light: #f8fafc;
   --foreground-light: #1e293b;
   --surface-light: rgb(255, 255, 255);
-  --surface-alpha-light: rgba(255, 255, 255, var(--user-opacity, 0.8));
 
   /* Dark mode colors */
   --primary-dark: #60a5fa;
@@ -36,23 +35,31 @@
   --background-dark: #0f172a;
   --foreground-dark: #f8fafc;
   --surface-dark: rgb(30, 41, 59);
-  --surface-alpha-dark: rgba(30, 41, 59, var(--user-opacity, 0.8));
 
   /* User Preferences - Default Values */
   --user-corner-radius: var(--corner-radius-modern);
   --user-font-family: var(--font-sans);
   --user-font-size: var(--text-base);
-  --user-text-color: var(--foreground-light);
+  --user-text-color: #ffffff;
   --user-background-color: #ffffff;
   --user-opacity: 0.75;
 
+  
+  
+  
   /* User preferences take precedence over theme */
   --primary: var(--user-accent-color, var(--primary-light));
   --accent: var(--user-accent-color, var(--accent-light));
   --background: var(--user-background-color, var(--background-light));
-  --foreground: var(--user-text-color, var(--foreground-light));
+  --foreground: var(--user-text-color, #ffffff);
   --surface: var(--surface-light);
   --surface-alpha: var(--surface-alpha-light);
+  
+  
+  
+    --surface-alpha-dark:  var(---user-background-color, rgba(30, 41, 59, var(--user-opacity, 0.8)));
+    --surface-alpha-light:  var(---user-foreground-color, rgba(30, 41, 59, var(--user-opacity, 0.8)));
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -60,7 +67,8 @@
     --primary: var(--user-accent-color, var(--primary-dark));
     --accent: var(--user-accent-color, var(--accent-dark));
     --background: var(--user-background-color, var(--background-dark));
-    --foreground: var(--user-text-color, var(--foreground-dark));
+    --foreground: var(--user-text-color, #ffffff);
+    
     --surface: var(--surface-dark);
     --surface-alpha: var(--surface-alpha-dark);
   }

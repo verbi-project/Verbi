@@ -14,10 +14,7 @@
 const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
 
         
-        if (!userId) {
-            console.error("No user ID provided");
-            window.location.href = '/auth'; // Redirect to auth if no userId
-        }
+       
 
         document.addEventListener('DOMContentLoaded', function() {
             const profileNameElement = document.querySelector('.profile-name');
@@ -71,24 +68,183 @@ function convertRGBToHex(rgb) {
     return '#' + ((1 << 24) + (+r << 16) + (+g << 8) + +b).toString(16).slice(1);
 }
 
+async function loadUISettings() {
+  const cornerRadiusSelect = document.getElementById('cornerRadius');
+const fontFamilySelect = document.getElementById('fontFamily');
+const fontSizeSelect = document.getElementById('fontSize');
+const textColorInput = document.getElementById('textColor');
+const backgroundColorInput = document.getElementById('backgroundColor');
+const accentColorInput = document.getElementById('accentColor');
+const opacityInput = document.getElementById('uiOpacity');
+const opacityValue = document.getElementById('opacityValue');
+const saveUISettingsButton = document.getElementById('saveUISettings');
+    const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+    if (!userId) return;
 
+    try {
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        if (profileData) {
+            const profile = JSON.parse(profileData);
+            const settings = profile.uiSettings || {};
+
+            // Apply settings if they exist
+            if (settings.cornerRadius) {
+                document.documentElement.style.setProperty('--user-corner-radius', `var(${settings.cornerRadius})`);
+                cornerRadiusSelect.value = settings.cornerRadius;
+            }
+            if (settings.fontFamily) {
+                document.documentElement.style.setProperty('--user-font-family', `var(${settings.fontFamily})`);
+                fontFamilySelect.value = settings.fontFamily;
+            }
+            if (settings.fontSize) {
+                document.documentElement.style.setProperty('--user-font-size', `var(${settings.fontSize})`);
+                fontSizeSelect.value = settings.fontSize;
+            }
+            if (settings.textColor) {
+                document.documentElement.style.setProperty('--user-text-color', settings.textColor);
+                textColorInput.value = settings.textColor;
+            }
+            if (settings.backgroundColor) {
+                document.documentElement.style.setProperty('--user-background-color', settings.backgroundColor);
+                
+                // Handle both preset and custom colors for background
+                if (settings.backgroundColor.startsWith('var(--bg-color-')) {
+                    const activePreset = document.querySelector(`[data-color="${settings.backgroundColor}"]`);
+                    if (activePreset) {
+                        activePreset.classList.add('active');
+                        
+                        const computedColor = getComputedStyle(document.documentElement)
+                            .getPropertyValue(settings.backgroundColor.replace('var(', '').replace(')', ''))
+                            .trim();
+                        backgroundColorInput.value = convertRGBToHex(computedColor);
+                    }
+                } else {
+                    backgroundColorInput.value = settings.backgroundColor;
+                }
+            }
+            if (settings.accentColor) {
+                document.documentElement.style.setProperty('--user-accent-color', settings.accentColor);
+                document.documentElement.style.setProperty('--icon-color', settings.accentColor);
+                
+                if (settings.accentColor.startsWith('var(')) {
+                    const activePreset = document.querySelector(`[data-color="${settings.accentColor}"]`);
+                    if (activePreset) {
+                        activePreset.classList.add('active');
+                        
+                        const computedColor = getComputedStyle(document.documentElement)
+                            .getPropertyValue(settings.accentColor.replace('var(', '').replace(')', ''))
+                            .trim();
+                        accentColorInput.value = convertRGBToHex(computedColor);
+                    }
+                } else {
+                    accentColorInput.value = settings.accentColor;
+                }
+            }
+            if (settings.uiOpacity !== undefined) {
+                document.documentElement.style.setProperty('--user-opacity', settings.uiOpacity);
+                opacityInput.value = settings.uiOpacity * 100;
+                opacityValue.textContent = Math.round(settings.uiOpacity * 100) + '%';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading UI settings:', error);
+    }
+}
 // Load settings on page load
+loadUISettings()
+loadUserPreferences()
+async function loadBackground() {
+    const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
+    if (!userId) return;
 
-        const themeToggle = document.getElementById('themeToggle');
-        let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    try {
+        const profileData = await new Promise((resolve) => getUserProfile(userId, resolve));
+        if (profileData) {
+            const profile = JSON.parse(profileData);
+            if (profile.backgroundImage) {
+              var currentBackground = document.getElementById("backgroundImage");
+                currentBackground.src = profile.backgroundImage;
+                document.body.style.backgroundImage = `url(${profile.backgroundImage})`;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading background:', error);
+    }
+}
+loadBackground()
 
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.classList.toggle('dark-mode', darkMode);
-            playSound('click');
-        });
+async function loadUserPreferences() {
+  // Load dark/light mode preference
+  console.log(":s")
+  var darkMode = localStorage.getItem("darkMode") === "true";
+  document.documentElement.classList.toggle("dark-mode", darkMode);
+    const userId = JSON.parse(localStorage.getItem("USER_PROFILE"))?.id;
 
-        // Theme toggle listener
-        themeToggle.addEventListener('click', () => {
-            darkMode = !darkMode;
-            document.documentElement.classList.toggle('dark-mode', darkMode);
-            playSound('click');
-        });
+  // Check profile.json for customBackgroundURL in Firebase Storage
+  if (userId) {
+    try {
+      var profileData = await getUserProfile(userId, (profileData) => {
+        
+        if (profileData) {
+          try {
+           
+            var profile = JSON.parse(profileData);
+            if (profile.backgroundImage) {
+         
+              var backgroundImageElement =
+                document.getElementById("backgroundImage");
+              if (backgroundImageElement) {
+                     
+                backgroundImageElement.src = profile.backgroundImage;
+                console.log(backgroundImageElement)
+                // Update localStorage to cache it for subsequent loads
+                localStorage.setItem(
+                  "customBackground",
+                  profile.backgroundImage
+                );
+              }
+            } else {
+              // If not found in Firebase, check localStorage as a fallback
+              var customBackground = localStorage.getItem("USER_PROFILE").uiSettings.backgroundImage;
+              if (customBackground) {
+                document.getElementById("backgroundImage").src =
+                  customBackground;
+              }
+            }
+          } catch (error) {
+            console.error("Error parsing profile data:", error);
+            // If parsing fails, you might want to check localStorage as a fallback
+            var customBackground = localStorage.getItem("USER_PROFILE").uiSettings.backgroundImage;
+            if (customBackground) {
+              document.getElementById("backgroundImage").src = customBackground;
+            }
+          }
+        } else {
+          // If profile data is not found in Firebase, check localStorage as a fallback
+          var customBackground = localStorage.getItem("USER_PROFILE").uiSettings.backgroundImage;
+          if (customBackground) {
+            document.getElementById("backgroundImage").src = customBackground;
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      // If there's an error fetching, you might want to check localStorage as a fallback
+      var customBackground = localStorage.getItem("USER_PROFILE").uiSettings.backgroundImage;
+      if (customBackground) {
+        document.getElementById("backgroundImage").src = customBackground;
+      }
+    }
+  } else {
+    // If no userId, fallback to localStorage
+    var customBackground = localStorage.getItem("USER_PROFILE").uiSettings.backgroundImage;
+    if (customBackground) {
+      document.getElementById("backgroundImage").src = customBackground;
+    }
+  }
+}
+
+        
 
         // Collection management
         const collectionModal = document.getElementById('collectionModal');

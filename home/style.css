@@ -157,7 +157,8 @@ body {
   justify-content: center;
   align-items: center;
   background: var(--surface);
-  color: var(--foreground);
+  color: var(--accent);
+
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -172,7 +173,7 @@ body {
   width: auto !important;
   padding: 0 1.5rem !important;
   border-radius: 25px !important;
-  background: var(--primary) !important;
+  background: var(--surface-alpha) !important;
   color: white !important;
   font-family: "Bree Serif", serif !important;
 }
